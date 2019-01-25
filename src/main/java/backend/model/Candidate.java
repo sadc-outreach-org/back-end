@@ -1,4 +1,4 @@
-package heb.candidate;
+package backend.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 @Entity
 @Table(name = "candidate")
@@ -50,9 +51,10 @@ public class Candidate {
     @Column(name = "password")
     private String password;
 
+    @JsonIgnore
+    @Lob
     @Column(name = "resume")
-    private String resume;
-
+    private byte[] resume;
 
     //Setters and getters
     public int getid()
@@ -141,18 +143,22 @@ public class Candidate {
         this.password = password;
     }
 
-    public String getResume(){
+    public byte[] getResume(){
         return resume;
     }
 
-    public void setResume(String resume){
+    public void setResume(byte[] resume){
         this.resume = resume;
     }
 
     // Check pertinent info that are not allowed to be empty
     public boolean checkEmpty()
     {
-        if ((password.equals("") ) || (firstName.equals("") ) || (lastName.equals("") ) || (email.equals("") ) || (phoneNumber.equals("") ) )
+        if ((password.isEmpty()   || password    == null ) 
+        || (firstName.isEmpty()   || firstName   == null ) 
+        || (lastName.isEmpty()    || lastName    == null ) 
+        || (email.isEmpty()       || email       == null ) 
+        || (phoneNumber.isEmpty() || phoneNumber == null ) )
             return true;
         else
             return false;

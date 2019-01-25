@@ -1,5 +1,6 @@
-package heb.candidate;
+package backend.repository;
 
+import backend.model.Candidate;
 import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
@@ -9,13 +10,13 @@ import org.springframework.data.repository.CrudRepository;
 public interface CandidateRepository extends CrudRepository<Candidate, Integer> {
 
     
-    Candidate findFirstByemail(String email);
+    Candidate findOneByemail(String email);
 
     //First match and list of matching last name
-    Candidate findFirstBylastName(String lastName);
-    List<Candidate> findBylastName(String lastname);
+    Candidate findBylastName(String lastName);
+    List<Candidate> findBylastNameLike(String lastname);
 
     //First match and list of matching first name
     Candidate findFirstByfirstName(String firstName);
-    List<Candidate> findByfirstName(String firstName);
+    List<Candidate> findByfirstNameLike(String firstName);
 }

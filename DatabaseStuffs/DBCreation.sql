@@ -20,8 +20,6 @@ USE `heb` ;
 -- -----------------------------------------------------
 -- Table `heb`.`candidate`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `heb`.`candidate` ;
-
 CREATE TABLE IF NOT EXISTS `heb`.`candidate` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `email` VARCHAR(30) NULL DEFAULT NULL,
@@ -34,8 +32,13 @@ CREATE TABLE IF NOT EXISTS `heb`.`candidate` (
   `city` VARCHAR(20) NULL DEFAULT NULL,
   `phoneNumber` VARCHAR(12) NULL DEFAULT NULL,
   `githubLink` VARCHAR(50) NULL DEFAULT NULL,
-  `resume` blob NULL DEFAULT NULL,
-  PRIMARY KEY (`id`))
+  `resume` BLOB NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_index` (`id` ASC) VISIBLE,
+  UNIQUE INDEX `email_index` (`email` ASC) VISIBLE,
+  INDEX `first_index` (`firstName` ASC) VISIBLE,
+  INDEX `last_index` (`lastName` ASC) VISIBLE,
+  INDEX `phone_index` (`phoneNumber` ASC) VISIBLE)
 ENGINE = InnoDB
 AUTO_INCREMENT = 1
 DEFAULT CHARACTER SET = utf8mb4
