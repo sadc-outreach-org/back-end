@@ -1,0 +1,419 @@
+swagger: "2.0"
+info:
+  description: "This is our API"
+  version: "0.1.0"
+  title: "HEB"
+  termsOfService: "terms of service"
+  contact:
+    email: "apiteam@swagger.io"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "cloud-25.cs.trinity.edu"
+basePath: "/v2"
+tags:
+- name: "user"
+  description: "Everything realting to users"
+  externalDocs:
+    description: "Find out more"
+    url: "http://swagger.io"
+schemes:
+- https
+- http
+paths:
+  /user/login:
+    post:
+      tags:
+      - "user"
+      summary: "To log in, provide the following"
+      description: ""
+      operationId: "login"
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: "credential"
+        description: "Login information"
+        required: true
+        schema:
+          $ref: "#/definitions/LoginInfo"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "OK"
+              message:
+                type: string
+                example: "Success"
+              result:
+                $ref: "#/definitions/User"
+          headers:
+            X-Rate-Limit:
+              type: integer
+              format: int32
+              description: "calls per hour allowed by the user"
+            X-Expires-After:
+              type: string
+              format: date-time
+              description: "date in UTC when token expires"
+        401:
+          description: "Email or password is incorrect"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "UNAUTHORIZED"
+              message:
+                type: string
+                example: "Email or password is incorrect"
+            
+  /user/signup:
+    post:
+      tags:
+      - "user"
+      summary: "Signs a new user up"
+      description: "Use a json object to create a user"
+      operationId: "signup"
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: "body"
+        description: "The fields required "
+        required: true
+        schema:
+          $ref: "#/definitions/Signup"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "OK"
+              message:
+                type: string
+                example: "Success"
+              result:
+                $ref: "#/definitions/User"
+          headers:
+            X-Rate-Limit:
+              type: integer
+              format: int32
+              description: "calls per hour allowed by the user"
+            X-Expires-After:
+              type: string
+              format: date-time
+              description: "date in UTC when token expires"
+        401:
+          description: "Missing required infomation on signup"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "UNAUTHORIZED"
+              message:
+                type: string
+                example: "Missing required infomation"
+        403:
+          description: "Email already exists"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "FORBIDDEN"
+              message:
+                type: string
+                example: "This email already exists"
+                
+  /user/{email}/info:
+    get:
+      tags:
+      - "user"
+      summary: "Returns the profile information of a specified user"
+      description: ""
+      operationId: "info"
+      produces:
+      - application/file
+      parameters:
+        - in: path
+          name: email 
+          description: "The user email address"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "The specified user info"
+          schema:
+            $ref: '#/definitions/User'
+          headers:
+            X-Rate-Limit:
+              type: integer
+              format: int32
+              description: "calls per hour allowed by the user"
+            X-Expires-After:
+              type: string
+              format: date-time
+              description: "date in UTC when token expires"
+        404:
+          description: "Invalid email"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "NOT_FOUND"
+              message:
+                type: string
+                example: "Email not found"
+                
+  /user/{email}/resume:
+    get:
+      tags:
+      - "user"
+      summary: "Return the resume of a specified user"
+      description: "Check database for resume of the candidate associated with the email"
+      operationId: "resume"
+      produces:
+      - application/octet-stream
+      parameters:
+        - in: path
+          name: email 
+          description: "The user email address"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "The candidate resume"
+          schema:
+            type: file
+          headers:
+            X-Rate-Limit:
+              type: integer
+              format: int32
+              description: "calls per hour allowed by the user"
+            X-Expires-After:
+              type: string
+              format: date-time
+              description: "date in UTC when token expires"
+        404:
+          description: "Invalid email or user does not have a resume"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "NOT_FOUND"
+              message:
+                type: string
+                example: "Email not found or user does not have a resume"
+    post:
+      tags:
+      - "user"
+      summary: "Upload a resume of the specified user"
+      description: "Replace the old resume of the specified user with the uploaded file"
+      produces:
+      - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: email 
+          description: "The user email address"
+          required: true
+          type: string
+        - in: formData
+          name: file
+          description: "The resume"
+          required: true
+          type: file
+      responses:
+        200:
+          description: "Success in uploading resume"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "OK"
+              message:
+                type: string
+                example: "Success"
+              result:
+                $ref: "#/definitions/User"
+          headers:
+            X-Rate-Limit:
+              type: integer
+              format: int32
+              description: "calls per hour allowed by the user"
+            X-Expires-After:
+              type: string
+              format: date-time
+              description: "date in UTC when token expires"
+        500:
+          description: "Failed to upload the resume file"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "INTERNAL_SERVER_ERROR"
+              message:
+                type: string
+                example: "Failed to upload file"
+
+
+              
+  /user/candidateupdate:
+    post:
+      tags:
+      - "user"
+      summary: "To change candidate information"
+      description: ""
+      operationId: "candidateupdate"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "credential"
+        description: "Updating Candidate"
+        required: true
+        schema:
+          type: object
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "object"
+          headers:
+            X-Rate-Limit:
+              type: integer
+              format: int32
+              description: "calls per hour allowed by the user"
+            X-Expires-After:
+              type: string
+              format: date-time
+              description: "date in UTC when token expires"
+        401:
+          description: "Invalid username/password supplied"
+        500:
+          description: "Unexpected server error"
+
+securityDefinitions:
+  hebapi_auth:
+    type: "oauth2"
+    authorizationUrl: "http://api.hebproject.swagger.io/oauth/dialog"
+    flow: "implicit"
+    scopes:
+      write:candidates: "modify candidate information in your account"
+      read:candidates: "read candidates"
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+  LoginInfo:
+    type: "object"
+    required:
+      - email
+      - password
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    example:
+      email: "jbutt@gmail.com"
+      password: "123213123123"
+  Signup:
+    type: object
+    required: 
+      - firstName
+      - lastName
+      - email
+      - phoneNumber
+      - password
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      streeAddress:
+        type: string
+      zipCode:
+        type: string
+      state:
+        type: string
+      city:
+        type: string
+      phoneNumber:
+        type: string
+      githubLink:
+        type: string
+    example:
+      email: "art@venere.org"
+      firstName: "Art"
+      lastName: "Venere"
+      password: "2312313123"
+      streetAddress: "8 W Cerritos Ave #54"
+      zipCode: "08014"
+      state: "NJ"
+      city: "Bridgeport"
+      phoneNumber: "856-636-8749"
+      githubLink: "http://www.chemeljameslcpa.com"
+    xml:
+      name: "Singup"
+  User:
+    type: object
+    required: 
+      - firstName
+      - lastName
+      - email
+      - phoneNumber
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      streeAddress:
+        type: string
+      zipCode:
+        type: string
+      state:
+        type: string
+      city:
+        type: string
+      phoneNumber:
+        type: string
+      githubLink:
+        type: string
+    example:
+      email: "art@venere.org"
+      firstName: "Art"
+      lastName: "Venere"
+      streetAddress: "8 W Cerritos Ave #54"
+      zipCode: "08014"
+      state: "NJ"
+      city: "Bridgeport"
+      phoneNumber: "856-636-8749"
+      githubLink: "http://www.chemeljameslcpa.com"
+    xml:
+      name: "User"
+
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"

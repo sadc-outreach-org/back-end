@@ -10,9 +10,7 @@ import backend.response.APIResponse;
 @JsonInclude(Include.NON_EMPTY)
 public class APIError extends APIResponse {
 
-    protected HttpStatus status;
-    protected String message;
-    protected String debugMessage;
+    private String debugMessage;
 
     public APIError(HttpStatus status, String message)
     {
@@ -27,7 +25,7 @@ public class APIError extends APIResponse {
 
     public String getDebugMessage()
     {
-        return message;
+        return debugMessage;
     }
 
     public void setDebugMessage(String debugMessage)

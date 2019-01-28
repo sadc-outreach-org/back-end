@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -47,7 +49,7 @@ public class Candidate {
     @Column(name = "githubLink")
     private String githubLink;
 
-    @JsonIgnore
+    @JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "password")
     private String password;
 
@@ -154,11 +156,11 @@ public class Candidate {
     // Check pertinent info that are not allowed to be empty
     public boolean checkEmpty()
     {
-        if ((password.isEmpty()   || password    == null ) 
-        || (firstName.isEmpty()   || firstName   == null ) 
-        || (lastName.isEmpty()    || lastName    == null ) 
-        || (email.isEmpty()       || email       == null ) 
-        || (phoneNumber.isEmpty() || phoneNumber == null ) )
+        if (( password    == null || password.isEmpty()   ) 
+        || (  firstName   == null || firstName.isEmpty()  ) 
+        || (  lastName    == null || lastName.isEmpty()   ) 
+        || (  email       == null || email.isEmpty()      ) 
+        || (  phoneNumber == null || phoneNumber.isEmpty()) )
             return true;
         else
             return false;

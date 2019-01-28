@@ -2,10 +2,9 @@ package backend.response;
 
 import org.springframework.http.HttpStatus;
 
-public abstract class APIResponse {
-
-    protected HttpStatus status;
-    protected String message;
+public class APIResponse {
+    private HttpStatus status;
+    private String message;
 
     public APIResponse(HttpStatus status, String message)
     {

@@ -1,5 +1,7 @@
 package backend.controller;
 
+import java.io.IOException;
+
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -19,8 +21,15 @@ import backend.error.EmailInUseException;
 @ControllerAdvice
 public class CandidateExceptionController extends ResponseEntityExceptionHandler {
 
+    //Java exceptions
 
-
+    @ExceptionHandler(IOException.class)
+    protected ResponseEntity<APIError> handleIOException(IOException ex)
+    {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        APIError error = new APIError(status, "Problem with retrieving / saving file", ex);
+        return ResponseEntity.status(status).body(error);
+    }
 
     // Custom exceptions
 
@@ -36,7 +45,7 @@ public class CandidateExceptionController extends ResponseEntityExceptionHandler
     protected ResponseEntity<APIError> handleResumeNotFound(ResumeNotFoundException ex)
     {
         HttpStatus status = HttpStatus.NOT_FOUND;
-        APIError error = new APIError(status, "Email not found");
+        APIError error = new APIError(status, "This user does not have a resume");
         return ResponseEntity.status(status).body(error);
     }
 
@@ -59,8 +68,8 @@ public class CandidateExceptionController extends ResponseEntityExceptionHandler
     @ExceptionHandler(EmailInUseException.class)
     protected ResponseEntity<APIError> handleEmailInUse(EmailInUseException ex)
     {
-        HttpStatus status = HttpStatus.UNAUTHORIZED;
-        APIError error = new APIError(status, "Missing required infomation");
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        APIError error = new APIError(status, "This email already exists");
         return ResponseEntity.status(status).body(error);
     }
 }
