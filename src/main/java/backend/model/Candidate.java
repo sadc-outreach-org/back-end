@@ -2,16 +2,16 @@ package backend.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Table;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.MapsId;
+import javax.persistence.OneToOne;
 
 @Entity
 @Table(name = "candidate")
@@ -21,15 +21,6 @@ public class Candidate {
 
     @Column(name = "id")
     private int id;
-
-    @Column(name = "email")
-    private String email;
-
-    @Column(name = "firstName")
-    private String firstName;
-
-    @Column(name = "lastName")
-    private String lastName;
 
     @Column(name = "streetAddress")
     private String streetAddress;
@@ -43,20 +34,17 @@ public class Candidate {
     @Column(name = "city")
     private String city;
 
-    @Column(name = "phoneNumber")
-    private String phoneNumber;
-
-    @Column(name = "githubLink")
-    private String githubLink;
-
-    @JsonProperty(access = Access.WRITE_ONLY)
-    @Column(name = "password")
-    private String password;
+    @Column(name = "gitLink")
+    private String gitLink;
 
     @JsonIgnore
     @Lob
     @Column(name = "resume")
     private byte[] resume;
+
+    @OneToOne
+    @JoinColumn(name = "userID", nullable = false)
+    private User user;
 
     //Setters and getters
     public int getid()
@@ -64,97 +52,65 @@ public class Candidate {
         return id;
     }
 
-    public String getEmail(){
-        return email;
-    }
-
-    public void setEmail(String email){
-        this.email = email;
-    }
-
-    public String getFirstName(){
-        return firstName;
-    }
-
-    public void setFirstname(String firstName){
-        this.firstName= firstName;
-    }
-
-    public String getLastName(){
-        return lastName;
-    }
-
-    public void setLastName(String lastName){
-        this.lastName = lastName;
-    }
-
-
     public String getStreetAddress(){
         return streetAddress;
-    }
-
-    public void setStreetAddress(String streetAddress){
-        this.streetAddress = streetAddress;
     }
 
     public String getZipCode(){
         return zipCode;
     }
 
-    public void setZipcode(String zipCode){
-        this.zipCode = zipCode;
-    }
-
     public String getState(){
         return state;
-    }
-
-    public void setState(String state){
-        this.state = state;
     }
 
     public String getCity(){
         return city;
     }
 
-    public void setCity(String city){
-        this.city = city;
-    }
-
-    public String getPhoneNumber(){
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber){
-        this.phoneNumber= phoneNumber;
-    }
-
-    public String getGithubLink(){
-        return githubLink;
-    }
-
-    public void setGithublink(String githubLink){
-        this.githubLink = githubLink;
-    }
-
-    public String getPassword(){
-        return password;
-    }
-
-    public void setPassword(String password){
-        this.password = password;
+    public String getGitLink(){
+        return gitLink;
     }
 
     public byte[] getResume(){
         return resume;
     }
 
+    public User getUser()
+    {
+        return user;
+    }
+
+    public void setStreetAddress(String streetAddress){
+        this.streetAddress = streetAddress;
+    }
+
+    public void setZipcode(String zipCode){
+        this.zipCode = zipCode;
+    }
+
+    public void setState(String state){
+        this.state = state;
+    }
+
+    public void setCity(String city){
+        this.city = city;
+    }
+
+    public void setGitlink(String gitLink){
+        this.gitLink = gitLink;
+    }
+
     public void setResume(byte[] resume){
         this.resume = resume;
     }
 
+    public void setUser(User user)
+    {
+        this.user =user;
+    }
     // Check pertinent info that are not allowed to be empty
-    public boolean checkEmpty()
+    /*public boolean checkEmpty()
     {
         if (( password    == null || password.isEmpty()   ) 
         || (  firstName   == null || firstName.isEmpty()  ) 
@@ -164,5 +120,5 @@ public class Candidate {
             return true;
         else
             return false;
-    }
+    }*/
 }

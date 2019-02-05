@@ -1,15 +1,11 @@
 package backend.repository;
 
-import backend.model.Candidate;
-import java.util.List;
-
+import backend.model.UserType;
 import javax.transaction.Transactional;
-
 import org.springframework.data.repository.CrudRepository;
 
 //This is a crudrepository for query candidate infos from mysql database
 @Transactional
-public interface CandidateRepository extends CrudRepository<Candidate, Integer> {
+public interface UserTypeRepository extends CrudRepository<UserType, Integer> {
 
-    Candidate findById(int id);
 }

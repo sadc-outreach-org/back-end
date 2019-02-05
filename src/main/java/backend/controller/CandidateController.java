@@ -2,7 +2,10 @@ package backend.controller;
 
 import backend.repository.*;
 import backend.error.*;
+import backend.model.Admin;
 import backend.model.Candidate;
+import backend.model.User;
+import backend.model.UserType;
 import backend.response.*;
 import backend.request.*;
 import java.io.IOException;
@@ -23,11 +26,73 @@ public class CandidateController {
     @Autowired
     private CandidateRepository candidateRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserTypeRepository userTypeRepository;
+
+    @Autowired
+    private AdminRepository adminRepository;
+
     @RequestMapping("/greeting")
     public String greeting() {
         return "This is HEB team greeting message";
     }
 
+    @GetMapping("/users")
+    public ResponseEntity<ResponseMult<User>> getUsers() {
+        Iterable<User> all = userRepository.findAll();
+        List<User> cands = new ArrayList<User>();
+        all.forEach(cands::add);
+        ResponseMult<User> res = new ResponseMult<User>(HttpStatus.OK, "Success", cands);
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping(path = "/{email}/info")
+    public ResponseEntity<ResponseSingle<User>> getUser(@PathVariable("email") String email) {
+        // Get the account with this email address
+        User cand = userRepository.findOneByemail(email);
+        if (cand == null) throw new CandidateNotFoundException();
+        else
+        {
+            ResponseSingle<User> res = new ResponseSingle<User>(HttpStatus.OK, "Success", cand);
+            return ResponseEntity.ok(res);
+        } 
+    }
+
+    @GetMapping(path = "/byID/{id}/info")
+    public ResponseEntity<ResponseSingle<Candidate>> getCand(@PathVariable("id") int id) {
+        // Get the account with this email address
+        Candidate cand = candidateRepository.findById(id);
+        if (cand == null) throw new CandidateNotFoundException();
+        else
+        {
+            ResponseSingle<Candidate> res = new ResponseSingle<Candidate>(HttpStatus.OK, "Success", cand);
+            return ResponseEntity.ok(res);
+        } 
+    }
+
+    @GetMapping(path = "/byIDAdmin/{id}/info")
+    public ResponseEntity<ResponseSingle<Admin>> getAdmin(@PathVariable("id") int id) {
+        // Get the account with this email address
+        Admin cand = adminRepository.findById(id);
+        if (cand == null) throw new CandidateNotFoundException();
+        else
+        {
+            ResponseSingle<Admin> res = new ResponseSingle<Admin>(HttpStatus.OK, "Success", cand);
+            return ResponseEntity.ok(res);
+        } 
+    }
+
+    @GetMapping("/usertypes")
+    public List<UserType> getUserTypes() {
+        List<UserType> types = new ArrayList<UserType>();
+        Iterable<UserType> userTypes = userTypeRepository.findAll();
+        userTypes.forEach(types::add);
+        return types;
+    }
+    /*
     // Get a list of all users along with their information
     @GetMapping("/users")
     public ResponseEntity<ResponseMult<Candidate>> getUsers() {
@@ -144,4 +209,6 @@ public class CandidateController {
                                     .contentType(MediaType.parseMediaType("application/octet-stream"))//Specify that it is a pdf file
                                     .body(new ByteArrayResource(Files.readAllBytes(path))); //return the content of the file 
     }
+
+    */
 }
