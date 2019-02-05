@@ -10,8 +10,8 @@ jobs:
       - image: us.gcr.io/sadc-trinity/trinity-circle-builds:1.0.1
         auth :
           username: trinity-circle-ci
-          password: $GCP_KEY
-          
+          password: $GCP_KEY_TEST
+
     working_directory: ~/repo
 
     environment:
