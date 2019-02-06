@@ -59,3 +59,9 @@ jobs:
           command:
             gcloud auth activate-service-account --key-file=GCP_KEY.json
 
+      - run:
+          name: Copy jar to api-builds bucket
+          command:
+            file=$(ls target/javabackend* | head -1)
+            gsutil cp $file gs://api-builds
+
