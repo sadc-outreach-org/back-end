@@ -51,7 +51,7 @@ jobs:
       - run: 
           name: Copy GCP key to a file
           command:
-            cat $GCP_KEY > GCP_KEY.json
+            echo "$GCP_KEY" > "GCP_KEY.json"
       
       #Authenticate to gcp with service account
       - run:
