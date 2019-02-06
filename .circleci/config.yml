@@ -7,10 +7,10 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: us.gcr.io/sadc-trinity/trinity-circle-builds:1.0.1
+      - image: us.gcr.io/sadc-trinity/trinity-circle-builds:1.1.1
         auth :
           username: _json_key
-          password: $GCP_KEY_TEST
+          password: $GCP_KEY
 
     working_directory: ~/repo
 
@@ -37,3 +37,4 @@ jobs:
         
       # run tests!
       - run: mvn integration-test
+      
