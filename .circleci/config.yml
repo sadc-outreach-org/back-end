@@ -37,25 +37,25 @@ jobs:
         
       # run tests
       - run:
-        name: Running unit tests
-        command: 
-          mvn integration-test
+          name: Running unit tests
+          command: 
+            mvn integration-test
       
       #build 
       - run: 
-        name: Build jar
-        command:
-          mvn package
+          name: Build jar
+          command:
+            mvn package
 
       #Copy json key
       - run: 
-        name: Copy GCP key to a file
-        command:
-          cat $GCP_KEY > GCP_KEY.json
+          name: Copy GCP key to a file
+          command:
+            cat $GCP_KEY > GCP_KEY.json
       
       #Authenticate to gcp with service account
       - run:
-        name: Authenticate to GCP
-        command:
-          gcloud auth activate-service-account --key-file=GCP_KEY.json
+          name: Authenticate to GCP
+          command:
+            gcloud auth activate-service-account --key-file=GCP_KEY.json
 
