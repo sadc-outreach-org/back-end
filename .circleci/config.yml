@@ -62,6 +62,6 @@ jobs:
       - run:
           name: Copy jar to api-builds bucket
           command:
-            file=$(ls target/javabackend* | head -1)
+            file=$(ls target/javabackend* | head -1);
             gsutil cp $file gs://api-builds
 
