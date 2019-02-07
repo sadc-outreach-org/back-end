@@ -109,16 +109,5 @@ public class Candidate {
     {
         this.user =user;
     }
-    // Check pertinent info that are not allowed to be empty
-    /*public boolean checkEmpty()
-    {
-        if (( password    == null || password.isEmpty()   ) 
-        || (  firstName   == null || firstName.isEmpty()  ) 
-        || (  lastName    == null || lastName.isEmpty()   ) 
-        || (  email       == null || email.isEmpty()      ) 
-        || (  phoneNumber == null || phoneNumber.isEmpty()) )
-            return true;
-        else
-            return false;
-    }*/
+
 }

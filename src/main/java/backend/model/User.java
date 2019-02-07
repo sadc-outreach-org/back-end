@@ -61,7 +61,7 @@ public class User {
         return firstName;
     }
 
-    public void setFirstname(String firstName){
+    public void setFirstName(String firstName){
         this.firstName= firstName;
     }
 
@@ -73,11 +73,11 @@ public class User {
         this.lastName = lastName;
     }
 
-    public String getPhoneNumber(){
+    public String getPhoneNum(){
         return phoneNum;
     }
 
-    public void setPhoneNumber(String phoneNum){
+    public void setPhoneNum(String phoneNum){
         this.phoneNum= phoneNum;
     }
 
@@ -99,5 +99,17 @@ public class User {
         this.userType = userType;
     }
 
+    // Check pertinent info that are not allowed to be empty
+    public boolean hasAllFields()
+    {
+        if (( password    == null || password.isEmpty()   ) 
+        || (  firstName   == null || firstName.isEmpty()  ) 
+        || (  lastName    == null || lastName.isEmpty()   ) 
+        || (  email       == null || email.isEmpty()      ) 
+        || (  phoneNum == null || phoneNum.isEmpty()) )
+            return false;
+        else
+            return true;
+    }
 
 }
