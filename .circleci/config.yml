@@ -75,11 +75,7 @@ jobs:
           username: _json_key
           password: $GCP_KEY
 
-    working_directory: ~/repo
-
     steps:
-      - checkout
-
       - run:
           name: Authenticate to GCP
           command:
@@ -89,7 +85,7 @@ jobs:
       - run:
           name: Copy jar to api-builds bucket
           command:
-            file=$(ls target/javabackend* | head -1);
+            file=$(ls /root/repo/target/javabackend* | head -1);
             gsutil cp $file gs://api-builds
 
 
