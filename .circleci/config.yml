@@ -76,6 +76,9 @@ jobs:
           password: $GCP_KEY
 
     steps:
+      - attach_workspace:
+          at: /root/repo
+
       - run:
           name: Authenticate to GCP
           command:
