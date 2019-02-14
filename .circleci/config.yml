@@ -12,15 +12,29 @@ jobs:
           username: _json_key
           password: $GCP_KEY
 
+    working_directory: ~/repo
+
     steps:
       - checkout
+
+      - restore_cache: 
+          keys:
+          - v1-dependencies-{{ checksum "pom.xml" }}
+          - v1-dependencies-
 
       #build 
       - run: 
           name: Build jar
           command:
             mvn package
+      
+      - run:
+          command:
+            file=$(ls target/javabackend* | head -1);
 
+      - persist_to_workspace:
+          root: target
+          paths: $file
 
   test:
     docker:
@@ -43,7 +57,6 @@ jobs:
       - restore_cache: 
           keys:
           - v1-dependencies-{{ checksum "pom.xml" }}
-          # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
       - run: mvn dependency:go-offline
@@ -65,6 +78,8 @@ jobs:
         auth :
           username: _json_key
           password: $GCP_KEY
+
+    working_directory: ~/repo
 
     steps:
       - checkout
