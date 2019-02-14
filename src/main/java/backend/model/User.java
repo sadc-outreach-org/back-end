@@ -106,7 +106,8 @@ public class User {
         || (  firstName   == null || firstName.isEmpty()  ) 
         || (  lastName    == null || lastName.isEmpty()   ) 
         || (  email       == null || email.isEmpty()      ) 
-        || (  phoneNum == null || phoneNum.isEmpty()) )
+        || (  phoneNum    == null || phoneNum.isEmpty()   )
+        || (  userType == null)                       )
             return false;
         else
             return true;

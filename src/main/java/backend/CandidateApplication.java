@@ -9,11 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 //@Component
 
 public class CandidateApplication {
-
 	public static void main(String[] args) {
 		//SpringApplication.run(CandidateApplication.class, args);
 		SpringApplication.run(CandidateApplication.class, args);
 	}
-
-
 }

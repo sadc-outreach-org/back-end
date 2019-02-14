@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
 @RestController
@@ -35,6 +36,9 @@ public class CandidateController {
     @Autowired
     private AdminRepository adminRepository;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     @RequestMapping("/greeting")
     public String greeting() {
         return "This is HEB team greeting message";
@@ -49,22 +53,13 @@ public class CandidateController {
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping(path = "/{email}/info")
-    public ResponseEntity<ResponseSingle<User>> getUser(@PathVariable("email") String email) {
-        // Get the account with this email address
-        User cand = userRepository.findOneByemail(email);
-        if (cand == null) throw new CandidateNotFoundException();
-        else
-        {
-            ResponseSingle<User> res = new ResponseSingle<User>(HttpStatus.OK, "Success", cand);
-            return ResponseEntity.ok(res);
-        } 
-    }
 
-    @GetMapping(path = "/byID/{id}/info")
-    public ResponseEntity<ResponseSingle<Candidate>> getCand(@PathVariable("id") int id) {
+
+    // Get a candidate with the specified email
+    @GetMapping(path = "/{email}/info")
+    public ResponseEntity<ResponseSingle<Candidate>> getUser(@PathVariable("email") String email) {
         // Get the account with this email address
-        Candidate cand = candidateRepository.findById(id);
+        Candidate cand = candidateRepository.findByEmail(email);
         if (cand == null) throw new CandidateNotFoundException();
         else
         {
@@ -72,6 +67,7 @@ public class CandidateController {
             return ResponseEntity.ok(res);
         } 
     }
+    
 
     @GetMapping(path = "/byIDAdmin/{id}/info")
     public ResponseEntity<ResponseSingle<Admin>> getAdmin(@PathVariable("id") int id) {
@@ -92,37 +88,39 @@ public class CandidateController {
         userTypes.forEach(types::add);
         return types;
     }
-    /*
-    // Get a list of all users along with their information
-    @GetMapping("/users")
-    public ResponseEntity<ResponseMult<Candidate>> getUsers() {
-        Iterable<Candidate> all = candidateRepository.findAll();
-        List<Candidate> cands = new ArrayList<Candidate>();
-        all.forEach(cands::add);
-        ResponseMult<Candidate> res = new ResponseMult<Candidate>(HttpStatus.OK, "Success", cands);
-        return ResponseEntity.ok(res);
-    }
 
-    // Get information from a specific user, using their email address as the value
-    @GetMapping(path = "/{email}/info")
-    public ResponseEntity<ResponseSingle<Candidate>> getUser(@PathVariable("email") String email) {
-        // Get the account with this email address
-        Candidate cand = candidateRepository.findOneByemail(email);
-        if (cand == null) throw new CandidateNotFoundException();
-        else
-        {
-            ResponseSingle<Candidate> res = new ResponseSingle<Candidate>(HttpStatus.OK, "Success", cand);
+    // Signup a user
+    @PostMapping("/signup")
+    public ResponseEntity<ResponseSingle<Candidate>> signUp(@RequestBody Candidate cand) {
+        // Check if email already in used
+        if (candidateRepository.findByEmail(cand.getUser().getEmail()) != null) throw new EmailInUseException();
+        // Validation check for all the required fields
+        else if (!cand.getUser().hasAllFields()) throw new MissingInfomationException(); 
+        // Add user to the database
+        else 
+        {   
+            // Set usertype to be a candidate and encode password
+            UserType userType = new UserType();
+            userType.setId(1);
+            cand.getUser().setUserType(userType);
+            cand.getUser().setPassword(passwordEncoder.encode(cand.getUser().getPassword()));
+
+            // Save to database and exit with status code 200
+            candidateRepository.save(cand);
+            ResponseSingle<Candidate> res = new ResponseSingle<Candidate>(HttpStatus.OK, "Signup Success", cand);
             return ResponseEntity.ok(res);
-        } 
-    }
+        }
+    }    
 
-    // Check if a login is success or failure
+
+    // Process a login attempt, return an exception if login with incorrect credentials
     @PostMapping("/login")
     public ResponseEntity<ResponseSingle<Candidate>> login(@RequestBody Login attempt) {
         if (attempt.getPassword() == null || attempt.getEmail() == null) throw new InvalidLoginException();
         // Check if email and password correspond to a user on database
-        Candidate cand = candidateRepository.findOneByemail(attempt.getEmail());
-        if ((cand != null) && (cand.getPassword().equals(attempt.getPassword()))) 
+        Candidate cand = candidateRepository.findByEmail(attempt.getEmail());
+        if ( (cand != null) &&
+            (passwordEncoder.matches(attempt.getPassword(), cand.getUser().getPassword())) )
         {
             ResponseSingle<Candidate> res = new ResponseSingle<Candidate>(HttpStatus.OK, "Success", cand);
             return ResponseEntity.ok(res);
@@ -130,30 +128,33 @@ public class CandidateController {
         else throw new InvalidLoginException();
     }
 
-    // Signup a user
-    @PostMapping("/signup")
-    public ResponseEntity<ResponseSingle<Candidate>> signUp(@RequestBody Candidate cand) {
-        // Check if email already in used
-        if (candidateRepository.findOneByemail(cand.getEmail()) != null) throw new EmailInUseException();
-        // Validation check for all the required fields
-        else if (cand.checkEmpty()) throw new MissingInfomationException(); 
-        // Add user to the database
-        else 
+
+    @DeleteMapping("/{email}")
+    public ResponseEntity<APIResponse> deleteUser(@PathVariable("email") String email)
+    {
+        Candidate cand = candidateRepository.findByEmail(email);
+        if (cand == null) throw new CandidateNotFoundException();
+        else
         {
-            candidateRepository.save(cand);
-            ResponseSingle<Candidate> res = new ResponseSingle<Candidate>(HttpStatus.OK, "Signup Success", cand);
+            candidateRepository.delete(cand);
+            APIResponse res = new APIResponse(HttpStatus.OK, "User " + email + " has been deleted");
             return ResponseEntity.ok(res);
         }
     }
+
+
+    
+
+
 
     @GetMapping(
         value = "/{email}/resume",
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
         )
     public ResponseEntity<ByteArrayResource> getResume(@PathVariable("email") String email) {
-        Candidate cand = candidateRepository.findOneByemail(email);
-        //Currently has no way to get the file original name, might have to change database to accomodate this feature, and not all files are .docx neither
-        String resume = "resume.docx";
+        Candidate cand = candidateRepository.findByEmail(email);
+        //Currently has no way to get the file original name, might have to change database to accomodate this feature, assuming all files are pdf
+        String resume = "resume.pdf";
 
         if (cand == null) throw new CandidateNotFoundException();
         if (cand.getResume() == null) throw new ResumeNotFoundException();
@@ -163,11 +164,12 @@ public class CandidateController {
                 .body(new ByteArrayResource(cand.getResume())); // return the content of the file
     }
 
+    
     @PostMapping("/{email}/resume")
     public ResponseEntity<ResponseSingle<Candidate>> uploadResume(@RequestParam MultipartFile file, @PathVariable("email") String email) throws IOException
     {
 
-        Candidate cand = candidateRepository.findOneByemail(email);
+        Candidate cand = candidateRepository.findByEmail(email);
         if (cand == null) throw new CandidateNotFoundException();
         else
         {
@@ -178,25 +180,7 @@ public class CandidateController {
         }
     }
 
-    @DeleteMapping("/{email}")
-    public ResponseEntity<APIResponse> deleteUser(@PathVariable("email") String email)
-    {
-        long deleted = candidateRepository.deleteByEmail(email);
-        if (deleted == 0) throw new CandidateNotFoundException();
-        else
-        {
-            APIResponse res = new APIResponse(HttpStatus.OK, "User " + email + " has been deleted");
-            return ResponseEntity.ok(res);
-        }
-    }
-
-
-
-
-
-
-
-
+    /*
     @GetMapping("/resume/test")
     public ResponseEntity<ByteArrayResource> getResumeFromCandidate() throws IOException
     {

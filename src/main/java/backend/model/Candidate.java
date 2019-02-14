@@ -1,5 +1,6 @@
 package backend.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -42,7 +43,7 @@ public class Candidate {
     @Column(name = "resume")
     private byte[] resume;
 
-    @OneToOne
+    @OneToOne (cascade = CascadeType.ALL)
     @JoinColumn(name = "userID", nullable = false)
     private User user;
 
@@ -107,7 +108,7 @@ public class Candidate {
 
     public void setUser(User user)
     {
-        this.user =user;
+        this.user = user;
     }
 
 }
