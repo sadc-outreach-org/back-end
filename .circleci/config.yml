@@ -27,14 +27,10 @@ jobs:
           name: Build jar
           command:
             mvn package
-      
-      - run:
-          command:
-            file=$(ls target/javabackend* | head -1);
 
       - persist_to_workspace:
-          root: target
-          paths: $file
+          root: /root/repo
+          paths: target/
 
   test:
     docker:
