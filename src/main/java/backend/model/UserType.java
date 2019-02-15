@@ -27,7 +27,7 @@ public class UserType {
 
     @JsonIgnore
     @OneToMany(mappedBy = "userType")
-    private List<User> users;
+    private List<Profile> profiles;
 
     // Getter
 
@@ -52,8 +52,10 @@ public class UserType {
     }
 
     
-    public List<User> getUsers()
+    public List<Profile> getProfiles()
     {
-        return users;
+        return profiles;
     }
+
+
 }

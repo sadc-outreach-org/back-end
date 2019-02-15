@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import backend.model.User;
+import backend.model.Profile;
 import backend.model.UserType;
 
 public class UserTest {
@@ -15,48 +15,48 @@ public class UserTest {
     @Test
     public void testUserHasAllFields()
     {
-        User user = new User();
-        user.setEmail("asfasf");
-        user.setFirstName("123");
-        user.setLastName("456");
-        user.setPassword("123213123");
-        user.setPhoneNum("314-123-4567");
+        Profile profile = new Profile();
+        profile.setEmail("asfasf");
+        profile.setFirstName("123");
+        profile.setLastName("456");
+        profile.setPassword("123213123");
+        profile.setPhoneNum("314-123-4567");
         UserType userType = new UserType();
         userType.setId(1);
-        user.setUserType(userType);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        assertTrue("User has all fields", user.hasAllFields());
+        profile.setUserType(userType);
+        profile.setPassword(passwordEncoder.encode(profile.getPassword()));
+        assertTrue("User has all fields", profile.hasAllFields());
         
     }
 
     @Test
     public void testUserSomeEmptyFields()
     {
-        User user = new User();
-        user.setEmail("");
-        user.setFirstName("123");
-        user.setLastName("456");
-        user.setPassword("123213123");
-        user.setPhoneNum("");
+        Profile profile = new Profile();
+        profile.setEmail("");
+        profile.setFirstName("123");
+        profile.setLastName("456");
+        profile.setPassword("123213123");
+        profile.setPhoneNum("");
         UserType userType = new UserType();
         userType.setId(1);
-        user.setUserType(userType);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        assertFalse("User does not has all required fields", user.hasAllFields());
+        profile.setUserType(userType);
+        profile.setPassword(passwordEncoder.encode(profile.getPassword()));
+        assertFalse("User does not has all required fields", profile.hasAllFields());
     }
 
     @Test
     public void testUserNullFields()
     {
-        User user = new User();
-        assertFalse("User does not has all requried fields", user.hasAllFields());
-        user.setFirstName("123");
-        assertFalse("User does not has all requried fields", user.hasAllFields());
-        user.setLastName("456");
-        assertFalse("User does not has all requried fields", user.hasAllFields());
-        user.setPassword("123213123");
-        assertFalse("User does not has all requried fields", user.hasAllFields());
-        user.setPhoneNum("314-123-4567");
-        assertFalse("User does not has all requried fields", user.hasAllFields());
+        Profile profile = new Profile();
+        assertFalse("User does not has all requried fields", profile.hasAllFields());
+        profile.setFirstName("123");
+        assertFalse("User does not has all requried fields", profile.hasAllFields());
+        profile.setLastName("456");
+        assertFalse("User does not has all requried fields", profile.hasAllFields());
+        profile.setPassword("123213123");
+        assertFalse("User does not has all requried fields", profile.hasAllFields());
+        profile.setPhoneNum("314-123-4567");
+        assertFalse("User does not has all requried fields", profile.hasAllFields());
     }
 }

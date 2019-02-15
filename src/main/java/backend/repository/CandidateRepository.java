@@ -16,7 +16,7 @@ public interface CandidateRepository extends CrudRepository<Candidate, Integer> 
 
     Candidate findById(int id);
 
-    @Query ("FROM Candidate c WHERE c.user.email = :email")
+    @Query ("FROM Candidate c WHERE c.profile.email = :email")
     Candidate findByEmail(@Param("email") String email);
  
 }

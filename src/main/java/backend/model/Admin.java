@@ -26,7 +26,7 @@ public class Admin {
 
     @OneToOne
     @JoinColumn(name = "userID", nullable = false)
-    private User user;
+    private Profile profile;
 
     // Getters
     public int getid()
@@ -39,9 +39,9 @@ public class Admin {
         return position;
     }
 
-    public User getUser()
+    public Profile getProfile()
     {
-        return user;
+        return profile;
     }
 
     // Setters
@@ -50,8 +50,8 @@ public class Admin {
         this.position = position;
     }
 
-    public void setUser(User user)
+    public void setUser(Profile profile)
     {
-        this.user = user;
+        this.profile = profile;
     }
 }

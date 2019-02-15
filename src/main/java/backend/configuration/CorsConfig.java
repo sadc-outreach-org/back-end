@@ -11,7 +11,7 @@ public class CorsConfig {
     //This bean is to configure cors mapping
     //Currently allows all api calls from any ip address
     //Will change later to only allow front end machine to make these calls
-    @Bean
+    /*@Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
@@ -23,5 +23,5 @@ public class CorsConfig {
                         .allowedMethods("*");
             }
         };
-    }
+    }*/
 }

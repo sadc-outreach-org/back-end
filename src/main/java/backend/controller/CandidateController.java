@@ -4,7 +4,7 @@ import backend.repository.*;
 import backend.error.*;
 import backend.model.Admin;
 import backend.model.Candidate;
-import backend.model.User;
+import backend.model.Profile;
 import backend.model.UserType;
 import backend.response.*;
 import backend.request.*;
@@ -28,7 +28,7 @@ public class CandidateController {
     private CandidateRepository candidateRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private ProfileRepository profileRepository;
 
     @Autowired
     private UserTypeRepository userTypeRepository;
@@ -45,11 +45,11 @@ public class CandidateController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<ResponseMult<User>> getUsers() {
-        Iterable<User> all = userRepository.findAll();
-        List<User> cands = new ArrayList<User>();
+    public ResponseEntity<ResponseMult<Profile>> getUsers() {
+        Iterable<Profile> all = profileRepository.findAll();
+        List<Profile> cands = new ArrayList<Profile>();
         all.forEach(cands::add);
-        ResponseMult<User> res = new ResponseMult<User>(HttpStatus.OK, "Success", cands);
+        ResponseMult<Profile> res = new ResponseMult<Profile>(HttpStatus.OK, "Success", cands);
         return ResponseEntity.ok(res);
     }
 
@@ -91,20 +91,38 @@ public class CandidateController {
 
     // Signup a user
     @PostMapping("/signup")
-    public ResponseEntity<ResponseSingle<Candidate>> signUp(@RequestBody Candidate cand) {
+    public ResponseEntity<ResponseSingle<Candidate>> signUp(@RequestBody Signup signup) {
         // Check if email already in used
-        if (candidateRepository.findByEmail(cand.getUser().getEmail()) != null) throw new EmailInUseException();
-        // Validation check for all the required fields
-        else if (!cand.getUser().hasAllFields()) throw new MissingInfomationException(); 
+        if (candidateRepository.findByEmail(signup.getEmail()) != null) throw new EmailInUseException();
+        
+        //Set up new candidate user
+        Candidate cand = new Candidate();
+        cand.setCity(signup.getCity());
+        cand.setGitLink(signup.getGitLink());
+        cand.setState(signup.getState());
+        cand.setStreetAddress(signup.getStreetAddress());
+        cand.setZipcode(signup.getZipCode());
+
+        // Set usertype to candidate
+        UserType userType = new UserType();
+        userType.setId(1);
+
+        // Set the profile for candidate
+        Profile profile = new Profile();
+        profile.setEmail(signup.getEmail());
+        profile.setFirstName(signup.getFirstName());
+        profile.setLastName(signup.getLastName());
+        profile.setPassword(passwordEncoder.encode(signup.getPassword()));
+        profile.setPhoneNum(signup.getPhoneNum());
+        profile.setUserType(userType);
+
+        cand.setProfile(profile);
+
+        // Check required fields
+        if (!cand.getProfile().hasAllFields()) throw new MissingInfomationException(); 
         // Add user to the database
         else 
         {   
-            // Set usertype to be a candidate and encode password
-            UserType userType = new UserType();
-            userType.setId(1);
-            cand.getUser().setUserType(userType);
-            cand.getUser().setPassword(passwordEncoder.encode(cand.getUser().getPassword()));
-
             // Save to database and exit with status code 200
             candidateRepository.save(cand);
             ResponseSingle<Candidate> res = new ResponseSingle<Candidate>(HttpStatus.OK, "Signup Success", cand);
@@ -120,7 +138,7 @@ public class CandidateController {
         // Check if email and password correspond to a user on database
         Candidate cand = candidateRepository.findByEmail(attempt.getEmail());
         if ( (cand != null) &&
-            (passwordEncoder.matches(attempt.getPassword(), cand.getUser().getPassword())) )
+            (passwordEncoder.matches(attempt.getPassword(), cand.getProfile().getPassword())) )
         {
             ResponseSingle<Candidate> res = new ResponseSingle<Candidate>(HttpStatus.OK, "Success", cand);
             return ResponseEntity.ok(res);

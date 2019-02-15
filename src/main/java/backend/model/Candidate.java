@@ -45,7 +45,7 @@ public class Candidate {
 
     @OneToOne (cascade = CascadeType.ALL)
     @JoinColumn(name = "userID", nullable = false)
-    private User user;
+    private Profile profile;
 
     //Setters and getters
     public int getid()
@@ -77,9 +77,9 @@ public class Candidate {
         return resume;
     }
 
-    public User getUser()
+    public Profile getProfile()
     {
-        return user;
+        return profile;
     }
 
     public void setStreetAddress(String streetAddress){
@@ -98,7 +98,7 @@ public class Candidate {
         this.city = city;
     }
 
-    public void setGitlink(String gitLink){
+    public void setGitLink(String gitLink){
         this.gitLink = gitLink;
     }
 
@@ -106,9 +106,9 @@ public class Candidate {
         this.resume = resume;
     }
 
-    public void setUser(User user)
+    public void setProfile(Profile profile)
     {
-        this.user = user;
+        this.profile = profile;
     }
 
 }

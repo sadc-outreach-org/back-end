@@ -17,7 +17,7 @@ import javax.persistence.OneToOne;
 
 @Entity
 @Table(name = "user")
-public class User {
+public class Profile {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
 
@@ -46,7 +46,7 @@ public class User {
     private UserType userType;
 
     @JsonIgnore
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "profile")
     private Candidate candidate;
 
     public String getEmail(){
