@@ -9,9 +9,6 @@ import backend.model.UserType;
 import backend.response.*;
 import backend.request.*;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -197,20 +194,4 @@ public class CandidateController {
             return ResponseEntity.ok().header("File-Uploaded", "resume.docx").body(res);
         }
     }
-
-    /*
-    @GetMapping("/resume/test")
-    public ResponseEntity<ByteArrayResource> getResumeFromCandidate() throws IOException
-    {
-        //Will change this later
-        //Will have to query for the path of their resume from the database
-        String resume = "template.docx";
-        Path path = Paths.get("C:\\Users\\thoai bui\\Documents\\Resume\\template.pdf");
-        //ByteArrayResource resume = ;
-        return ResponseEntity.ok().header("Content-Disposition", "attachment; filename=\"" + resume + "\"") //header to specify the name
-                                    .contentType(MediaType.parseMediaType("application/octet-stream"))//Specify that it is a pdf file
-                                    .body(new ByteArrayResource(Files.readAllBytes(path))); //return the content of the file 
-    }
-
-    */
 }
