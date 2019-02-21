@@ -19,7 +19,8 @@ import javax.persistence.OneToOne;
 
 @Entity
 @Table(name = "Candidate")
-public class Candidate {
+public class Candidate 
+{
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "candidateID")

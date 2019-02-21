@@ -15,10 +15,10 @@ import javax.persistence.OneToMany;
 
 @Entity
 @Table(name = "UserType")
-public class UserType {
+public class UserType 
+{
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-
     @Column(name = "userTypeID")
     private int userTypeID;
 

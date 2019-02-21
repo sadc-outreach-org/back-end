@@ -16,10 +16,10 @@ import javax.persistence.ManyToOne;
 
 @Entity
 @Table(name = "User")
-public class Profile {
+public class Profile 
+{
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-
     @Column(name = "userID")
     private int userID;
 
