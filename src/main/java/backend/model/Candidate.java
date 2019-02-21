@@ -1,15 +1,20 @@
 package backend.model;
 
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 
 @Entity
@@ -17,7 +22,6 @@ import javax.persistence.OneToOne;
 public class Candidate {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-
     @Column(name = "candidateID")
     private int candidateID;
 
@@ -41,9 +45,25 @@ public class Candidate {
     @Column(name = "resume")
     private byte[] resume;
 
-    @OneToOne (cascade = CascadeType.ALL)
+    @OneToOne (cascade = CascadeType.ALL, 
+                fetch = FetchType.LAZY)
     @JoinColumn(name = "userID", nullable = false)
     private Profile profile;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
+                fetch = FetchType.LAZY)
+    @JoinTable(name = "CandToPos",
+                joinColumns         = @JoinColumn(name = "candidateID"),
+                inverseJoinColumns  = @JoinColumn(name = "positionID"))
+    private List<Position> positions;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
+                fetch = FetchType.LAZY)
+    @JoinTable(name = "CandToReq",
+                joinColumns         = @JoinColumn(name = "candidateID"),
+                inverseJoinColumns  = @JoinColumn(name = "requisitionID"))
+    private List<Position> requisitions;
+
 
     //Setters and getters
     public int getCandidateID()
@@ -80,6 +100,11 @@ public class Candidate {
         return profile;
     }
 
+    public List<Position> getPositions()
+    {
+        return positions;
+    }
+
     public void setStreetAddress(String streetAddress){
         this.streetAddress = streetAddress;
     }
@@ -109,4 +134,8 @@ public class Candidate {
         this.profile = profile;
     }
 
+    public void setPositions(List<Position> positions)
+    {
+        this.positions = positions;
+    }
 }

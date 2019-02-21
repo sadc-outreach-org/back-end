@@ -1,51 +1,49 @@
 package backend.model;
 
 import java.util.List;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 
 @Entity
-@Table(name = "Admin")
-public class Admin {
+@Table (name = "Position")
+public class Position
+{
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name = "adminId")
-    private int adminID;
+    @Column(name = "positionID")
+    private int positionID;
 
     @Column(name = "position")
     private String position;
 
-    @OneToOne
-    @JoinColumn(name = "userID", nullable = false)
-    private Profile profile;
+    @ManyToMany(mappedBy = "positions",
+                fetch = FetchType.LAZY)
+    List<Candidate> candidates;
 
-    @OneToMany(mappedBy = "admin", 
-                cascade = {CascadeType.PERSIST,CascadeType.MERGE})
-    private List<Requisition> requisitions;
+    @ManyToMany(mappedBy = "positions",
+        fetch = FetchType.LAZY)
+    List<Requisition> requisitions;
 
-    // Getters
-    public int getAdminID()
+    // Getter methods
+    public int getPositionID()
     {
-        return adminID;
+        return positionID;
     }
-
+    
     public String getPosition()
     {
         return position;
     }
 
-    public Profile getProfile()
+    public List<Candidate> getCandidates()
     {
-        return profile;
+        return candidates;
     }
 
     public List<Requisition> getRequisitions()
@@ -53,15 +51,15 @@ public class Admin {
         return requisitions;
     }
 
-    // Setters
+    // Setter methods
     public void setPosition(String position)
     {
         this.position = position;
     }
 
-    public void setUser(Profile profile)
+    public void setCandidates(List<Candidate> candidates)
     {
-        this.profile = profile;
+        this.candidates = candidates;
     }
 
     public void setRequisitions(List<Requisition> requisitions)

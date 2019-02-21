@@ -13,7 +13,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 
 @Entity
 @Table(name = "User")
@@ -44,10 +43,6 @@ public class Profile {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userTypeID")
     private UserType userType;
-
-    @JsonIgnore
-    @OneToOne(mappedBy = "profile")
-    private Candidate candidate;
 
     public String getEmail(){
         return email;
