@@ -16,13 +16,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 @Entity
-@Table(name = "user")
+@Table(name = "User")
 public class Profile {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
 
-    @Column(name = "id")
-    private int id;
+    @Column(name = "userID")
+    private int userID;
 
     @Column(name = "email")
     private String email;

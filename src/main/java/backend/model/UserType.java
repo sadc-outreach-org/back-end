@@ -14,13 +14,13 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 @Entity
-@Table(name = "usertype")
+@Table(name = "UserType")
 public class UserType {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
 
-    @Column(name = "id")
-    private int id;
+    @Column(name = "userTypeID")
+    private int userTypeID;
 
     @Column(name = "type")
     private String type;
@@ -31,9 +31,9 @@ public class UserType {
 
     // Getter
 
-    public int getId ()
+    public int getUserTypeID ()
     {
-        return id;
+        return userTypeID;
     }
 
     public String getType()
@@ -41,9 +41,9 @@ public class UserType {
         return type;
     }
 
-    public void setId(int id)
+    public void setId(int userTypeID)
     {
-        this.id = id;
+        this.userTypeID = userTypeID;
     }
 
     public void setType(String type)

@@ -15,8 +15,8 @@ public class Admin {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
 
-    @Column(name = "id")
-    private int id;
+    @Column(name = "adminId")
+    private int adminID;
 
     @Column(name = "position")
     private String position;
@@ -26,9 +26,9 @@ public class Admin {
     private Profile profile;
 
     // Getters
-    public int getid()
+    public int getAdminID()
     {
-        return id;
+        return adminID;
     }
 
     public String getPosition()

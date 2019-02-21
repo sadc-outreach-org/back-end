@@ -13,13 +13,13 @@ import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 
 @Entity
-@Table(name = "candidate")
+@Table(name = "Candidate")
 public class Candidate {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
 
-    @Column(name = "id")
-    private int id;
+    @Column(name = "candidateID")
+    private int candidateID;
 
     @Column(name = "streetAddress")
     private String streetAddress;
@@ -46,9 +46,9 @@ public class Candidate {
     private Profile profile;
 
     //Setters and getters
-    public int getid()
+    public int getCandidateID()
     {
-        return id;
+        return candidateID;
     }
 
     public String getStreetAddress(){
