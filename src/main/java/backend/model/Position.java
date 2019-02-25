@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table (name = "Position")
 public class Position
@@ -22,10 +24,12 @@ public class Position
     @Column(name = "position")
     private String position;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "positions",
                 fetch = FetchType.LAZY)
     List<Candidate> candidates;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "positions",
         fetch = FetchType.LAZY)
     List<Requisition> requisitions;

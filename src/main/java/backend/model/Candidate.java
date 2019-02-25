@@ -46,11 +46,13 @@ public class Candidate
     @Column(name = "resume")
     private byte[] resume;
 
+    @JsonIgnore
     @OneToOne (cascade = CascadeType.ALL, 
                 fetch = FetchType.LAZY)
     @JoinColumn(name = "userID", nullable = false)
     private Profile profile;
 
+    @JsonIgnore
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
                 fetch = FetchType.LAZY)
     @JoinTable(name = "CandToPos",
@@ -58,12 +60,13 @@ public class Candidate
                 inverseJoinColumns  = @JoinColumn(name = "positionID"))
     private List<Position> positions;
 
+    @JsonIgnore
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
                 fetch = FetchType.LAZY)
     @JoinTable(name = "CandToReq",
                 joinColumns         = @JoinColumn(name = "candidateID"),
                 inverseJoinColumns  = @JoinColumn(name = "requisitionID"))
-    private List<Position> requisitions;
+    private List<Requisition> requisitions;
 
 
     //Setters and getters
@@ -104,6 +107,11 @@ public class Candidate
     public List<Position> getPositions()
     {
         return positions;
+    }
+
+    public List<Requisition> getRequisitions()
+    {
+        return requisitions;
     }
 
     public void setStreetAddress(String streetAddress){

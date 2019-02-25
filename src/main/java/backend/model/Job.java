@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "Job")
 public class Job
@@ -29,6 +31,7 @@ public class Job
     @Column(name = "requirements")
     private String requirements;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "job", 
                 cascade = CascadeType.ALL)
     private List<Requisition> requisitions;

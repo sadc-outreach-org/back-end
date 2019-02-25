@@ -4,7 +4,9 @@ import backend.repository.*;
 import backend.error.*;
 import backend.model.Admin;
 import backend.model.Candidate;
+import backend.model.Position;
 import backend.model.Profile;
+import backend.model.Requisition;
 import backend.model.UserType;
 import backend.response.*;
 import backend.request.*;
@@ -153,6 +155,30 @@ public class CandidateController {
         {
             candidateRepository.delete(cand);
             APIResponse res = new APIResponse(HttpStatus.OK, "User " + email + " has been deleted");
+            return ResponseEntity.ok(res);
+        }
+    }
+
+    @GetMapping("/{email}/requisitions")
+    public ResponseEntity<ResponseMult<Requisition>> getReq(@PathVariable("email") String email)
+    {
+        Candidate cand = candidateRepository.findByEmail(email);
+        if (cand == null) throw new CandidateNotFoundException();
+        else
+        {
+            ResponseMult<Requisition> res = new ResponseMult<Requisition>(HttpStatus.OK, "Success", cand.getRequisitions());
+            return ResponseEntity.ok(res);
+        }
+    }
+
+    @GetMapping("/{email}/positions")
+    public ResponseEntity<ResponseMult<Position>> getPos(@PathVariable("email") String email)
+    {
+        Candidate cand = candidateRepository.findByEmail(email);
+        if (cand == null) throw new CandidateNotFoundException();
+        else
+        {
+            ResponseMult<Position> res = new ResponseMult<Position>(HttpStatus.OK, "Success", cand.getPositions());
             return ResponseEntity.ok(res);
         }
     }

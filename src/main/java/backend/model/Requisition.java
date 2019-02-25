@@ -15,6 +15,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "Requisition")
 public class Requisition
@@ -24,18 +26,21 @@ public class Requisition
     @Column(name = "requisitionID")
     private int requisitionID;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "adminID")
     private Admin admin;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "jobID")
     private Job job;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "requisitions",
                 fetch = FetchType.LAZY)
     private List<Candidate> candidates;
 
+    @JsonIgnore
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
                 fetch = FetchType.LAZY)
     @JoinTable(name = "PosToReq",
