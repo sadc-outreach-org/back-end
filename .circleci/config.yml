@@ -90,7 +90,7 @@ jobs:
           command:
             file=$(ls /root/repo/target/javabackend* | head -1);
             gsutil cp $file gs://api-builds;
-            sudo apt-get install openssh-client;
+            apt-get install openssh-client;
             gcloud compute scp $file root@trinity-spring-2019:/app/api/
 
 
