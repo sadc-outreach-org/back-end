@@ -95,6 +95,7 @@ jobs:
             ssh-keygen -f id_rsa -t rsa -N '';
             cd;
             ls -al;
+            ls /root/;
             ssh-keyscan -H 34.73.221.154 >> .ssh/known_hosts;
       
       - add_ssh_keys:
