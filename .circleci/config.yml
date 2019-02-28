@@ -89,7 +89,8 @@ jobs:
           name: Copy jar to api-builds bucket
           command:
             file=$(ls /root/repo/target/javabackend* | head -1);
-            gsutil cp $file gs://api-builds
+            gsutil cp $file gs://api-builds;
+            gcloud compute scp $file root@trinity-spring-2019:/app/api/
 
 
 workflows:
