@@ -96,7 +96,7 @@ jobs:
             gsutil cp $file gs://api-builds;
             apt-get --assume-yes update;
             apt-get --assume-yes install openssh-client;
-            $ ssh-keygen -f id_rsa -t rsa -N '';
+            ssh-keygen -f id_rsa -t rsa -N '';
             gcloud compute scp $file root@trinity-spring-2019:/app/api/
 
 
