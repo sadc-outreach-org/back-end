@@ -85,19 +85,23 @@ jobs:
             echo "$GCP_KEY" > "GCP_KEY.json";
             gcloud auth activate-service-account --key-file=GCP_KEY.json
 
-      - add_ssh_keys:
-          fingerprints:
-            - "32:8c:f2:f4:c8:0c:1f:be:64:47:fa:2b:bc:26:9a:a7"
-
       - run:
-          name: Copy jar to api-builds bucket
+          name: Copy jar to bucket and install openssh
           command:
             file=$(ls /root/repo/target/javabackend* | head -1);
             gsutil cp $file gs://api-builds;
             apt-get --assume-yes update;
             apt-get --assume-yes install openssh-client;
-            ssh-keygen -f id_rsa -t rsa -N '';
+      
+      - add_ssh_keys:
+        fingerprints:
+          - "32:8c:f2:f4:c8:0c:1f:be:64:47:fa:2b:bc:26:9a:a7"
+      
+      - run:
+          name: Copy jar to vm
+          command:
             gcloud compute scp $file root@trinity-spring-2019:/app/api/
+      
 
 
 workflows:
