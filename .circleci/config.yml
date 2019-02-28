@@ -92,16 +92,9 @@ jobs:
             gsutil cp $file gs://api-builds;
             apt-get --assume-yes update;
             apt-get --assume-yes install openssh-client;
-            mkdir .ssh;
-            echo "$SSH_KEY_PUBLIC" > ".ssh/google_compute_engine.pub";
-            echo "$SSH_KEY" > ".ssh/google_compute_engine";
-            ls -al;
-            ls -al .ssh;
-            echo $HOME;
             mkdir $HOME/.ssh;
             echo "$SSH_KEY_PUBLIC" > "$HOME/.ssh/google_compute_engine.pub";
             echo "$SSH_KEY" > "$HOME/.ssh/google_compute_engine";
-            ssh-keyscan -H 34.73.221.154 >> .ssh/known_hosts;
       
       - add_ssh_keys:
           fingerprints:
