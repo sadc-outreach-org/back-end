@@ -95,6 +95,8 @@ jobs:
             mkdir .ssh;
             echo "$SSH_KEY_PUBLIC" > ".ssh/google_compute_engine.pub";
             echo "$SSH_KEY" > ".ssh/google_compute_engine";
+            ls -al;
+            ls -al .ssh;
             ssh-keyscan -H 34.73.221.154 >> .ssh/known_hosts;
       
       - add_ssh_keys:
