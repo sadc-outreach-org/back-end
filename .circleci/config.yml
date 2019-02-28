@@ -92,7 +92,7 @@ jobs:
             gsutil cp $file gs://api-builds;
             apt-get --assume-yes update;
             apt-get --assume-yes install openssh-client;
-            ssh-keygen -f id_rsa -t rsa -N ''
+            ssh-keygen -f id_rsa -t rsa -N '';
             cd;
             ls -al;
             ssh-keyscan -H 34.73.221.154 >> .ssh/known_hosts;
