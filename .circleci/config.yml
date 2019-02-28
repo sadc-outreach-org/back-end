@@ -83,7 +83,8 @@ jobs:
           name: Authenticate to GCP
           command:
             echo "$GCP_KEY" > "GCP_KEY.json";
-            gcloud auth activate-service-account --key-file=GCP_KEY.json
+            gcloud auth activate-service-account --key-file=GCP_KEY.json;
+            gcloud config set compute/zone us-east1-b;
 
       - run:
           name: Copy jar to bucket and install openssh
