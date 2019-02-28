@@ -105,7 +105,7 @@ jobs:
           name: Copy jar to vm
           command:
             file=$(ls /root/repo/target/javabackend* | head -1);
-            gcloud compute scp $file root@34.73.221.154:/app/api/; 
+            gcloud compute scp $file root@trinity-spring-2019:/app/api/; 
       
 
 
