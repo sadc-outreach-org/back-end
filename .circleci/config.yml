@@ -92,6 +92,7 @@ jobs:
             gsutil cp $file gs://api-builds;
             apt-get --assume-yes update;
             apt-get --assume-yes install openssh-client;
+            echo "$SSH_KEY" > "SSH_KEY"
       
       - add_ssh_keys:
           fingerprints:
@@ -101,7 +102,7 @@ jobs:
           name: Copy jar to vm
           command:
             file=$(ls /root/repo/target/javabackend* | head -1);
-            gcloud compute scp $file root@trinity-spring-2019:/app/api/
+            gcloud compute scp --ssh-key-file=SSH_KEY $file root@trinity-spring-2019:/app/api/ 
       
 
 
