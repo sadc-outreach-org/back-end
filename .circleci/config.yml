@@ -92,13 +92,9 @@ jobs:
             gsutil cp $file gs://api-builds;
             apt-get --assume-yes update;
             apt-get --assume-yes install openssh-client;
-            cd;
-            ls -al;
             mkdir .ssh;
-            ssh-keygen -f ".ssh/testKey" -t rsa -N '';
-            cd;
-            ls -al;
-            ls -al /root/;
+            echo "$SSH_KEY_PUBLIC" > ".ssh/google_compute_engine.pub";
+            echo "$SSH_KEY" > ".ssh/google_compute_engine";
             ssh-keyscan -H 34.73.221.154 >> .ssh/known_hosts;
       
       - add_ssh_keys:
@@ -109,7 +105,7 @@ jobs:
           name: Copy jar to vm
           command:
             file=$(ls /root/repo/target/javabackend* | head -1);
-            scp $file root@34.73.221.154:/app/api/ 
+            gcloud compute scp $file root@34.73.221.154:/app/api/; 
       
 
 
