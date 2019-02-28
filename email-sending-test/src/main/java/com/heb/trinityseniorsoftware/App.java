@@ -81,8 +81,8 @@ public class App {
         **/
         
         String email = "sortiz2@trinity.edu";
-        String title = "Heb Senior Software";
-        String message = "Welcome to HEB!";
+        String title = "HEB Recruitment Team";
+        String message = "Welcome to HEB! Please click on the following link to do stuff";
         
         GmailClass.Send(service, email, email, title, message);
     }
