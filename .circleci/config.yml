@@ -95,7 +95,7 @@ jobs:
             cd;
             ls -al;
             mkdir .ssh;
-            ssh-keygen -f ".ssh/testKey" rsa -N '';
+            ssh-keygen -f ".ssh/testKey" -t rsa -N '';
             cd;
             ls -al;
             ls -al /root/;
