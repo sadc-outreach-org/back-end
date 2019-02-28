@@ -92,6 +92,7 @@ jobs:
             gsutil cp $file gs://api-builds;
             apt-get --assume-yes update;
             apt-get --assume-yes install openssh-client;
+            cd;
             ls -al;
             echo "$SSH_KEY" > ".ssh/google_compute_engine"
       
