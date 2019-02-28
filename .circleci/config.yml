@@ -94,7 +94,7 @@ jobs:
             apt-get --assume-yes install openssh-client;
             cd;
             ls -al;
-            ssh-keygen -f id_rsa -t rsa -N '';
+            ssh-keygen -t rsa -N '';
             cd;
             ls -al;
             ls -al /root/;
