@@ -4,7 +4,7 @@ import backend.repository.*;
 import backend.error.*;
 import backend.model.Admin;
 import backend.model.Candidate;
-import backend.model.Position;
+import backend.model.Job;
 import backend.model.Profile;
 import backend.model.Requisition;
 import backend.model.UserType;
@@ -171,14 +171,14 @@ public class CandidateController {
         }
     }
 
-    @GetMapping("/{email}/positions")
-    public ResponseEntity<ResponseMult<Position>> getPos(@PathVariable("email") String email)
+    @GetMapping("/{email}/jobs")
+    public ResponseEntity<ResponseMult<Job>> getPos(@PathVariable("email") String email)
     {
         Candidate cand = candidateRepository.findByEmail(email);
         if (cand == null) throw new CandidateNotFoundException();
         else
         {
-            ResponseMult<Position> res = new ResponseMult<Position>(HttpStatus.OK, "Success", cand.getPositions());
+            ResponseMult<Job> res = new ResponseMult<Job>(HttpStatus.OK, "Success", cand.getJobs());
             return ResponseEntity.ok(res);
         }
     }

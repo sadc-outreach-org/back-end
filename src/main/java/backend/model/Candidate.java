@@ -55,10 +55,10 @@ public class Candidate
     @JsonIgnore
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
                 fetch = FetchType.LAZY)
-    @JoinTable(name = "CandToPos",
+    @JoinTable(name = "CandToJob",
                 joinColumns         = @JoinColumn(name = "candidateID"),
-                inverseJoinColumns  = @JoinColumn(name = "positionID"))
-    private List<Position> positions;
+                inverseJoinColumns  = @JoinColumn(name = "jobID"))
+    private List<Job> jobs;
 
     @JsonIgnore
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
@@ -104,9 +104,9 @@ public class Candidate
         return profile;
     }
 
-    public List<Position> getPositions()
+    public List<Job> getJobs()
     {
-        return positions;
+        return jobs;
     }
 
     public List<Requisition> getRequisitions()
@@ -143,8 +143,8 @@ public class Candidate
         this.profile = profile;
     }
 
-    public void setPositions(List<Position> positions)
+    public void setPositions(List<Job> jobs)
     {
-        this.positions = positions;
+        this.jobs = jobs;
     }
 }

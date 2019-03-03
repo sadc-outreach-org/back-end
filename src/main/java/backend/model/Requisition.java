@@ -40,14 +40,6 @@ public class Requisition
                 fetch = FetchType.LAZY)
     private List<Candidate> candidates;
 
-    @JsonIgnore
-    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
-                fetch = FetchType.LAZY)
-    @JoinTable(name = "PosToReq",
-                joinColumns         = @JoinColumn(name = "requisitionID"),
-                inverseJoinColumns  = @JoinColumn(name = "positionID"))
-    private List<Position> positions;
-
     //Getter methods
     public int getRequisitionID()
     {
@@ -68,11 +60,6 @@ public class Requisition
         return candidates;
     }
 
-    public List<Position> getPositions()
-    {
-        return positions;
-    }
-
 
     //Setter methods
     public void setAdmin(Admin admin)
@@ -90,8 +77,4 @@ public class Requisition
         this.candidates = candidates;
     }
 
-    public void setPositions(List<Position> positions)
-    {
-        this.positions = positions;
-    }
 }

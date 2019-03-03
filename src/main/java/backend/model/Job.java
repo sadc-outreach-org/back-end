@@ -5,9 +5,11 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -36,6 +38,11 @@ public class Job
                 cascade = CascadeType.ALL)
     private List<Requisition> requisitions;
 
+    @JsonIgnore
+    @ManyToMany(mappedBy = "jobs",
+                fetch = FetchType.LAZY)
+    List<Candidate> candidates;
+
     //Getter meethods
     public int getJobID()
     {
@@ -62,6 +69,11 @@ public class Job
         return requisitions;
     }
 
+    public List<Candidate> getCandidates()
+    {
+        return candidates;
+    }
+
     // Setter methods
     public void setTitle(String title)
     {
@@ -81,5 +93,10 @@ public class Job
     public void setRequisitions(List<Requisition> requisitions)
     {
         this.requisitions = requisitions;
+    }
+
+    public void setCandidates(List<Candidate> candidates)
+    {
+        this.candidates = candidates;
     }
 }
