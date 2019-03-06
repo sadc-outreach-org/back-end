@@ -12,11 +12,16 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import lombok.Getter;
+import lombok.Setter;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+@Getter
+@Setter
 @Entity
 @Table(name = "Job")
+@JsonInclude(Include.NON_NULL)
 public class Job
 {
     @Id
@@ -33,70 +38,12 @@ public class Job
     @Column(name = "requirements")
     private String requirements;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "job", 
-                cascade = CascadeType.ALL)
+                cascade = CascadeType.ALL,
+                fetch = FetchType.LAZY)
     private List<Requisition> requisitions;
 
-    @JsonIgnore
     @ManyToMany(mappedBy = "jobs",
                 fetch = FetchType.LAZY)
     List<Candidate> candidates;
-
-    //Getter meethods
-    public int getJobID()
-    {
-        return jobID;
-    }
-
-    public String getTitle()
-    {
-        return title;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public String getRequirements()
-    {
-        return requirements;
-    }
-
-    public List<Requisition> getRequisitions()
-    {
-        return requisitions;
-    }
-
-    public List<Candidate> getCandidates()
-    {
-        return candidates;
-    }
-
-    // Setter methods
-    public void setTitle(String title)
-    {
-        this.title = title;
-    }
-
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-    public void setRequirements(String requirements)
-    {
-        this.requirements = requirements;
-    }
-
-    public void setRequisitions(List<Requisition> requisitions)
-    {
-        this.requisitions = requisitions;
-    }
-
-    public void setCandidates(List<Candidate> candidates)
-    {
-        this.candidates = candidates;
-    }
 }

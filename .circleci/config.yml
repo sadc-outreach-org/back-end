@@ -89,7 +89,7 @@ jobs:
       - run:
           name: Copy jar to bucket and install openssh
           command:
-            file=$(ls /root/repo/target/javabackend* | head -1);
+            file=$(find /root/repo/target/javabackend* | head -1);
             gsutil cp $file gs://api-builds;
             apt-get --assume-yes update;
             apt-get --assume-yes install openssh-client;
@@ -97,14 +97,10 @@ jobs:
             echo "$SSH_KEY_PUBLIC" > "$HOME/.ssh/google_compute_engine.pub";
             echo "$SSH_KEY" > "$HOME/.ssh/google_compute_engine";
       
-      - add_ssh_keys:
-          fingerprints:
-            - "32:8c:f2:f4:c8:0c:1f:be:64:47:fa:2b:bc:26:9a:a7"
-      
       - run:
           name: Copy jar to vm
           command:
-            file=$(ls /root/repo/target/javabackend* | head -1);
+            file=$(find /root/repo/target/javabackend* | head -1);
             gcloud compute scp $file root@trinity-spring-2019:/app/api/; 
       
 

@@ -8,11 +8,16 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "UserType")
 public class UserType 
@@ -28,34 +33,4 @@ public class UserType
     @JsonIgnore
     @OneToMany(mappedBy = "userType")
     private List<Profile> profiles;
-
-    // Getter
-
-    public int getUserTypeID ()
-    {
-        return userTypeID;
-    }
-
-    public String getType()
-    {
-        return type;
-    }
-
-    public void setId(int userTypeID)
-    {
-        this.userTypeID = userTypeID;
-    }
-
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
-    
-    public List<Profile> getProfiles()
-    {
-        return profiles;
-    }
-
-
 }

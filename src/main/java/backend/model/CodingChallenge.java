@@ -7,6 +7,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 @Entity
 @Table (name = "CodingChallenge")
 public class CodingChallenge
@@ -27,52 +32,4 @@ public class CodingChallenge
 
     @Column(name = "expectedResults")
     private String expectedResults;
-
-    //Getter methods
-    public int getCCID()
-    {
-        return ccID;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public String getDifficulty()
-    {
-        return difficulty;
-    }
-
-    public String getQuestion()
-    {
-        return question;
-    }
-
-    public String getExpectedResults()
-    {
-        return expectedResults;
-    }
-
-
-    // Setter methods
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public void setDifficulty(String difficulty)
-    {
-        this.difficulty = difficulty;
-    }
-
-    public void setQuestion(String question)
-    {
-        this.question = question;
-    }
-
-    public void setExpectedResults(String expectedResults)
-    {
-        this.expectedResults = expectedResults;
-    }
 }

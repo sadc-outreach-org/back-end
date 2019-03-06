@@ -1,16 +1,14 @@
 package backend.repository;
 
 import backend.model.Profile;
-
 import java.util.List;
-
 import javax.transaction.Transactional;
-
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 //This is a crudrepository for query candidate infos from mysql database
 @Transactional
-public interface ProfileRepository extends CrudRepository<Profile, Integer> {
+public interface ProfileRepository extends JpaRepository<Profile, Integer>, JpaSpecificationExecutor<Profile> {
 
     Profile findOneByemail(String email);
 

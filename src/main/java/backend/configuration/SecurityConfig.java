@@ -2,6 +2,7 @@ package backend.configuration;
 
 import java.util.Arrays;
 
+import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,4 +42,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+    @Bean
+    public Hibernate5Module datatypeHibernateModule() 
+    {
+        return new Hibernate5Module();
+    }
+
+
 }

@@ -11,18 +11,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import backend.error.APIError;
-import backend.error.CandidateNotFoundException;
+import backend.error.UserNotFoundException;
 import backend.error.InvalidLoginException;
 import backend.error.MissingInfomationException;
+import backend.error.RecordNotFoundException;
 import backend.error.ResumeNotFoundException;
 import backend.error.EmailInUseException;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
-public class CandidateExceptionController extends ResponseEntityExceptionHandler {
+public class ExceptionController extends ResponseEntityExceptionHandler {
 
     //Java exceptions
-
     @ExceptionHandler(IOException.class)
     protected ResponseEntity<APIError> handleIOException(IOException ex)
     {
@@ -33,8 +33,8 @@ public class CandidateExceptionController extends ResponseEntityExceptionHandler
 
     // Custom exceptions
 
-    @ExceptionHandler(CandidateNotFoundException.class)
-    protected ResponseEntity<APIError> handleCandidateNotFound(CandidateNotFoundException ex)
+    @ExceptionHandler(UserNotFoundException.class)
+    protected ResponseEntity<APIError> handleCandidateNotFound(UserNotFoundException ex)
     {
         HttpStatus status = HttpStatus.NOT_FOUND;
         APIError error = new APIError(status, "Email not found", ex);
@@ -70,6 +70,14 @@ public class CandidateExceptionController extends ResponseEntityExceptionHandler
     {
         HttpStatus status = HttpStatus.FORBIDDEN;
         APIError error = new APIError(status, "This email already exists");
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(RecordNotFoundException.class)
+    protected ResponseEntity<APIError> handleRecordNotFound(EmailInUseException ex)
+    {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        APIError error = new APIError(status, "This record does not exist");
         return ResponseEntity.status(status).body(error);
     }
 }

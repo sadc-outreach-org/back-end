@@ -22,7 +22,7 @@ public class UserTest {
         profile.setPassword("123213123");
         profile.setPhoneNum("314-123-4567");
         UserType userType = new UserType();
-        userType.setId(1);
+        userType.setUserTypeID(1);
         profile.setUserType(userType);
         profile.setPassword(passwordEncoder.encode(profile.getPassword()));
         assertTrue("User has all fields", profile.hasAllFields());
@@ -39,7 +39,7 @@ public class UserTest {
         profile.setPassword("123213123");
         profile.setPhoneNum("");
         UserType userType = new UserType();
-        userType.setId(1);
+        userType.setUserTypeID(1);
         profile.setUserType(userType);
         profile.setPassword(passwordEncoder.encode(profile.getPassword()));
         assertFalse("User does not has all required fields", profile.hasAllFields());
