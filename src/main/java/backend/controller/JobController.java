@@ -13,11 +13,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.dto.AdminDTO;
+import backend.dto.ApplicationDTO;
 import backend.dto.CandidateDTO;
 import backend.dto.JobDTO;
+import backend.dto.RequisitionApplicationsDTO;
 import backend.dto.RequisitionDTO;
 import backend.error.RecordNotFoundException;
+import backend.model.Application;
 import backend.model.Job;
+import backend.model.Requisition;
 import backend.repository.AdminRepository;
 import backend.repository.CandidateRepository;
 import backend.repository.JobRepository;
@@ -99,4 +103,22 @@ public class JobController
     }
 
 
+    @GetMapping("/requisitions/{reqID}")
+    public ResponseEntity<ResponseSingle<RequisitionDTO>> getReq(@PathVariable("reqID") int reqID)
+    {
+        Requisition req = requisitionRepository.findById(reqID);
+        RequisitionDTO reqDTO = modelMapper.map(req, RequisitionDTO.class);
+        ResponseSingle<RequisitionDTO> res = new ResponseSingle<RequisitionDTO>(HttpStatus.OK, "Success", reqDTO);
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/requisitions/{id}/applications")
+    public ResponseEntity<ResponseSingle<RequisitionApplicationsDTO>> getApps(@PathVariable("id") int id)
+    {
+        Requisition req = requisitionRepository.findById(id);
+        Hibernate.initialize(req.getApplications());
+        RequisitionApplicationsDTO reqDTO = modelMapper.map(req, RequisitionApplicationsDTO.class);
+        ResponseSingle<RequisitionApplicationsDTO> res = new ResponseSingle<RequisitionApplicationsDTO>(HttpStatus.OK, "Success", reqDTO);
+        return ResponseEntity.ok(res);
+    }
 }

@@ -1,6 +1,10 @@
 package backend.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.hibernate.Hibernate;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import backend.dto.AdminDTO;
+import backend.dto.RequisitionSummaryDTO;
 import backend.error.InvalidLoginException;
 import backend.error.UserNotFoundException;
 import backend.model.Admin;
@@ -28,32 +35,21 @@ public class AdminController
     private AdminRepository adminRepository;
 
     @Autowired
+    private ModelMapper modelMapper;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
 
 
-    @GetMapping(path = "/{id}/info")
-    public ResponseEntity<ResponseSingle<Admin>> getAdminByID(@PathVariable("id") int id) {
+    @GetMapping(path = "/{id}")
+    public ResponseEntity<ResponseSingle<AdminDTO>> getAdminByID(@PathVariable("id") int id) {
         // Get the account with this email address
-        Admin cand = adminRepository.findById(id);
-        if (cand == null) throw new UserNotFoundException();
-        else
-        {
-            ResponseSingle<Admin> res = new ResponseSingle<Admin>(HttpStatus.OK, "Success", cand);
-            return ResponseEntity.ok(res);
-        } 
-    }
-
-    @GetMapping(path = "/{email}/info")
-    public ResponseEntity<ResponseSingle<Admin>> getAdminByEmail(@PathVariable("email") String email) {
-        // Get the account with this email address
-        Admin admin = adminRepository.findByEmail(email);
+        Admin admin = adminRepository.findById(id);
         if (admin == null) throw new UserNotFoundException();
-        else
-        {
-            ResponseSingle<Admin> res = new ResponseSingle<Admin>(HttpStatus.OK, "Success", admin);
-            return ResponseEntity.ok(res);
-        } 
+        AdminDTO adminDTO = modelMapper.map(admin, AdminDTO.class);
+        ResponseSingle<AdminDTO> res = new ResponseSingle<AdminDTO>(HttpStatus.OK, "Success", adminDTO);
+        return ResponseEntity.ok(res);
     }
 
     // Process a login attempt, return an exception if login with incorrect credentials
@@ -72,16 +68,17 @@ public class AdminController
     }
 
 
-    @GetMapping("/{email}/requisitions")
-    public ResponseEntity<ResponseMult<Requisition>> getReqs(@PathVariable("email") String email)
+    @GetMapping("/{id}/requisitions")
+    public ResponseEntity<ResponseMult<RequisitionSummaryDTO>> getReqs(@PathVariable("id") int id)
     {
-        Admin admin = adminRepository.findByEmail(email);
+        Admin admin = adminRepository.findById(id);
         if (admin == null) throw new UserNotFoundException();
         else
         {
             // Force initialization
             Hibernate.initialize(admin.getRequisitions());
-            ResponseMult<Requisition> res = new ResponseMult<Requisition>(HttpStatus.OK, "Success", admin.getRequisitions());
+            List<RequisitionSummaryDTO> reqDTO = admin.getRequisitions().stream().map(req -> modelMapper.map(req, RequisitionSummaryDTO.class)).collect(Collectors.toList());
+            ResponseMult<RequisitionSummaryDTO> res = new ResponseMult<RequisitionSummaryDTO>(HttpStatus.OK, "Success", reqDTO);
             return ResponseEntity.ok(res);
         }
     }

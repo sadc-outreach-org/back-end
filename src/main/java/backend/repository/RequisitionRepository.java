@@ -12,5 +12,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 @Transactional
 public interface RequisitionRepository extends JpaRepository<Requisition, Integer> , JpaSpecificationExecutor<Requisition>
 {
-    Job findById(int id);
+    Requisition findById(int id);
 }
