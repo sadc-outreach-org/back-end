@@ -1,21 +1,15 @@
 package backend.controller;
 
 import backend.repository.*;
-import backend.dto.ApplicationDTO;
 import backend.dto.ApplicationNoCandidateDTO;
 import backend.dto.CandidateDTO;
 import backend.dto.JobDTO;
-import backend.dto.RequisitionDTO;
 import backend.error.*;
-import backend.model.Application;
 import backend.model.Candidate;
-import backend.model.Job;
-import backend.model.Requisition;
 import backend.model.UserType;
 import backend.response.*;
 import backend.request.*;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;

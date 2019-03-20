@@ -21,7 +21,6 @@ import backend.dto.RequisitionSummaryDTO;
 import backend.error.InvalidLoginException;
 import backend.error.UserNotFoundException;
 import backend.model.Admin;
-import backend.model.Requisition;
 import backend.repository.AdminRepository;
 import backend.request.Login;
 import backend.response.ResponseMult;

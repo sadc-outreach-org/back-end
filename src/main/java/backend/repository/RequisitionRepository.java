@@ -1,6 +1,5 @@
 package backend.repository;
 
-import backend.model.Job;
 import backend.model.Requisition;
 
 import javax.transaction.Transactional;

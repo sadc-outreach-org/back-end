@@ -11,15 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
 import backend.dto.AdminDTO;
-import backend.dto.ApplicationDTO;
 import backend.dto.CandidateDTO;
 import backend.dto.JobDTO;
 import backend.dto.RequisitionApplicationsDTO;
 import backend.dto.RequisitionDTO;
 import backend.error.RecordNotFoundException;
-import backend.model.Application;
 import backend.model.Job;
 import backend.model.Requisition;
 import backend.repository.AdminRepository;
