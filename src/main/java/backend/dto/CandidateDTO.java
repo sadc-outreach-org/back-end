@@ -21,4 +21,5 @@ public class CandidateDTO
     private String state;
     private String city;
     private String phoneNum;
+    private byte[] resume;
 }
