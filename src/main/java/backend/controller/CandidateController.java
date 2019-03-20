@@ -93,14 +93,17 @@ public class CandidateController {
 
         Candidate cand = modelMapper.map(candDTO, Candidate.class);
         cand.getProfile().setUserType(candUserType);
+        
 
         // Check required fields
         if (!cand.getProfile().hasAllFields())
             throw new MissingInfomationException();
         // Add user to the database
         else {
-            // Save to database and exit with status code 200
+            // Encode password, save to database and exit with status code 200
+            cand.getProfile().setPassword(passwordEncoder.encode(cand.getProfile().getPassword()));
             candidateRepository.save(cand);
+            candDTO.setCandidateID(cand.getCandidateID());
             ResponseSingle<CandidateDTO> res = new ResponseSingle<CandidateDTO>(HttpStatus.OK, "Signup Success",
                     candDTO);
             return ResponseEntity.ok(res);
