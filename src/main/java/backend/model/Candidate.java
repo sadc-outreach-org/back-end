@@ -21,6 +21,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
 
 @Getter
 @Setter
@@ -61,18 +62,11 @@ public class Candidate
                 inverseJoinColumns  = @JoinColumn(name = "jobID"))
     private List<Job> jobs;
 
-    /*
-    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
-                fetch = FetchType.LAZY)
-    @JoinTable(name = "Application",
-                joinColumns         = @JoinColumn(name = "candidateID"),
-                inverseJoinColumns  = @JoinColumn(name = "requisitionID"))
-    private List<Requisition> requisitions;*/
-
     @OneToMany(mappedBy = "candidate",
                 cascade = CascadeType.ALL,
                 orphanRemoval = true    
     )
+    @OrderBy("statusID DESC")
     private List<Application> applications;
 
 }

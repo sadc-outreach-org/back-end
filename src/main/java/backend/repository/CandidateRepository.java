@@ -1,8 +1,12 @@
 package backend.repository;
 
 import backend.model.Candidate;
+
+import java.util.List;
+
 import javax.transaction.Transactional;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -16,5 +20,8 @@ public interface CandidateRepository extends JpaRepository<Candidate, Integer>, 
 
     @Query ("FROM Candidate c WHERE c.profile.email = :email")
     Candidate findByEmail(@Param("email") String email);
+
+    @Query ("SELECT c FROM Candidate c")
+    List<Candidate> findAllCandidates(Sort sort);
  
 }

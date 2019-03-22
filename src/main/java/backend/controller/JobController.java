@@ -6,20 +6,25 @@ import java.util.stream.Collectors;
 import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import backend.dto.AdminDTO;
+import backend.dto.ApplicationDTO;
 import backend.dto.CandidateDTO;
 import backend.dto.JobDTO;
 import backend.dto.RequisitionApplicationsDTO;
 import backend.dto.RequisitionDTO;
 import backend.error.RecordNotFoundException;
+import backend.model.Application;
+import backend.model.Candidate;
 import backend.model.Job;
 import backend.model.Requisition;
 import backend.repository.AdminRepository;
+import backend.repository.ApplicationRepository;
 import backend.repository.CandidateRepository;
 import backend.repository.JobRepository;
 import backend.repository.RequisitionRepository;
@@ -38,6 +43,9 @@ public class JobController
     @Autowired
     private RequisitionRepository requisitionRepository;
     
+    @Autowired
+    private ApplicationRepository applicationRepository;
+
     @Autowired
     private ModelMapper modelMapper;
 
@@ -110,12 +118,28 @@ public class JobController
     }
 
     @GetMapping("/requisitions/{id}/applications")
-    public ResponseEntity<ResponseSingle<RequisitionApplicationsDTO>> getApps(@PathVariable("id") int id)
+    public ResponseEntity<ResponseSingle<RequisitionApplicationsDTO>> getReqApps(@PathVariable("id") int id)
     {
         Requisition req = requisitionRepository.findById(id);
         Hibernate.initialize(req.getApplications());
         RequisitionApplicationsDTO reqDTO = modelMapper.map(req, RequisitionApplicationsDTO.class);
         ResponseSingle<RequisitionApplicationsDTO> res = new ResponseSingle<RequisitionApplicationsDTO>(HttpStatus.OK, "Success", reqDTO);
         return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/applications/{id}")
+    public ResponseEntity<ResponseSingle<ApplicationDTO>> getApp(@PathVariable("id") int id)
+    {
+        Application app = applicationRepository.findById(id);
+        ApplicationDTO appDTO = modelMapper.map(app, ApplicationDTO.class);
+        ResponseSingle<ApplicationDTO> res = new ResponseSingle<ApplicationDTO>(HttpStatus.OK, "Success", appDTO);
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("test")
+    public List<Candidate> getCandsSort()
+    {
+        List<Candidate> lstCands = candidateRepository.findAll(new Sort(Sort.Direction.DESC, "candidateID"));
+        return lstCands;
     }
 }
