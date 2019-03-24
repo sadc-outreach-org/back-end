@@ -7,9 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.hibernate.Hibernate;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,11 +16,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import backend.dto.AdminDTO;
 import backend.dto.ApplicationDTO;
-import backend.dto.ApplicationSummaryDTO;
+import backend.dto.CandidateDTO;
 import backend.dto.CandidateSortDTO;
 import backend.dto.JobDTO;
 import backend.dto.RequisitionDTO;
 import backend.error.RecordNotFoundException;
+import backend.mapper.AdminMapper;
+import backend.mapper.ApplicationMapper;
+import backend.mapper.CandidateMapper;
+import backend.mapper.JobMapper;
+import backend.mapper.RequisitionMapper;
 import backend.model.Application;
 import backend.model.Candidate;
 import backend.model.Job;
@@ -51,9 +54,6 @@ public class JobController
     private ApplicationRepository applicationRepository;
 
     @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
     private AdminRepository adminRepository;
 
     @PersistenceContext
@@ -72,7 +72,7 @@ public class JobController
     @GetMapping("/admins")
     public ResponseEntity<ResponseMult<AdminDTO>> getAdminss() 
     {
-        List<AdminDTO> lstAdminDTO = adminRepository.findAll().stream().map(ad -> modelMapper.map(ad, AdminDTO.class)).collect(Collectors.toList());
+        List<AdminDTO> lstAdminDTO = adminRepository.findAll().stream().map(ad -> AdminMapper.MAPPER.adminToAdminDTO(ad)).collect(Collectors.toList());
         ResponseMult<AdminDTO> res = new ResponseMult<AdminDTO>(HttpStatus.OK, "Success", lstAdminDTO);
         return ResponseEntity.ok(res);
     }
@@ -80,7 +80,7 @@ public class JobController
     @GetMapping("/jobs")
     public ResponseEntity<ResponseMult<JobDTO>> getJobs()
     {
-        List<JobDTO> lstJobDTO = jobRepository.findAll().stream().map(job -> modelMapper.map(job, JobDTO.class)).collect(Collectors.toList());
+        List<JobDTO> lstJobDTO = jobRepository.findAll().stream().map(job -> JobMapper.MAPPER.jobToJobDTO(job)).collect(Collectors.toList());
         ResponseMult<JobDTO> res = new ResponseMult<JobDTO>(HttpStatus.OK, "Success", lstJobDTO);
         return ResponseEntity.ok(res);
     }
@@ -90,7 +90,7 @@ public class JobController
     {
         Job job = jobRepository.findById(id);
         if (job == null) throw new RecordNotFoundException();
-        JobDTO jobDTO = modelMapper.map(job, JobDTO.class);
+        JobDTO jobDTO = JobMapper.MAPPER.jobToJobDTO(job);
         ResponseSingle<JobDTO> res = new ResponseSingle<JobDTO>(HttpStatus.OK, "Success", jobDTO);
         return ResponseEntity.ok(res);
     }
@@ -102,7 +102,7 @@ public class JobController
         if (job == null) throw new RecordNotFoundException();
         //Force initialization
         Hibernate.initialize(job.getRequisitions());
-        List<RequisitionDTO> lstReqDTO = job.getRequisitions().stream().map(req -> modelMapper.map(req, RequisitionDTO.class)).collect(Collectors.toList());
+        List<RequisitionDTO> lstReqDTO = job.getRequisitions().stream().map(req -> RequisitionMapper.MAPPER.requisitionToRequisitionDTO(req)).collect(Collectors.toList());
         ResponseMult<RequisitionDTO> res = new ResponseMult<RequisitionDTO>(HttpStatus.OK, "Success", lstReqDTO);
         return ResponseEntity.ok(res);
     }
@@ -110,7 +110,7 @@ public class JobController
     @GetMapping("/requisitions")
     public ResponseEntity<ResponseMult<RequisitionDTO>> getReqs()
     {
-        List<RequisitionDTO> lstReqDTO = requisitionRepository.findAll().stream().map(req -> modelMapper.map(req, RequisitionDTO.class)).collect(Collectors.toList());
+        List<RequisitionDTO> lstReqDTO = requisitionRepository.findAll().stream().map(req -> RequisitionMapper.MAPPER.requisitionToRequisitionDTO(req)).collect(Collectors.toList());
         ResponseMult<RequisitionDTO> res = new ResponseMult<RequisitionDTO>(HttpStatus.OK, "Success", lstReqDTO);
         return ResponseEntity.ok(res);
     }
@@ -120,18 +120,18 @@ public class JobController
     public ResponseEntity<ResponseSingle<RequisitionDTO>> getReq(@PathVariable("reqID") int reqID)
     {
         Requisition req = requisitionRepository.findById(reqID);
-        RequisitionDTO reqDTO = modelMapper.map(req, RequisitionDTO.class);
+        RequisitionDTO reqDTO = RequisitionMapper.MAPPER.requisitionToRequisitionDTO(req);
         ResponseSingle<RequisitionDTO> res = new ResponseSingle<RequisitionDTO>(HttpStatus.OK, "Success", reqDTO);
         return ResponseEntity.ok(res);
     }
 
     @GetMapping("/requisitions/{id}/applications")
-    public ResponseEntity<ResponseMult<ApplicationSummaryDTO>> getReqApps(@PathVariable("id") int id)
+    public ResponseEntity<ResponseMult<ApplicationDTO>> getReqApps(@PathVariable("id") int id)
     {
         Requisition req = requisitionRepository.findById(id);
         Hibernate.initialize(req.getApplications());
-        List<ApplicationSummaryDTO> lstAppDTO = req.getApplications().stream().map(app -> modelMapper.map(app, ApplicationSummaryDTO.class)).collect(Collectors.toList());
-        ResponseMult<ApplicationSummaryDTO> res = new ResponseMult<ApplicationSummaryDTO>(HttpStatus.OK, "Success", lstAppDTO);
+        List<ApplicationDTO> lstAppDTO = req.getApplications().stream().map(app -> ApplicationMapper.MAPPER.applicationToApplicationDTO(app)).collect(Collectors.toList());
+        ResponseMult<ApplicationDTO> res = new ResponseMult<ApplicationDTO>(HttpStatus.OK, "Success", lstAppDTO);
         return ResponseEntity.ok(res);
     }
 
@@ -139,22 +139,24 @@ public class JobController
     public ResponseEntity<ResponseSingle<ApplicationDTO>> getApp(@PathVariable("id") int id)
     {
         Application app = applicationRepository.findById(id);
-        ApplicationDTO appDTO = modelMapper.map(app, ApplicationDTO.class);
+        ApplicationDTO appDTO = ApplicationMapper.MAPPER.applicationToApplicationDTO(app);
         ResponseSingle<ApplicationDTO> res = new ResponseSingle<ApplicationDTO>(HttpStatus.OK, "Success", appDTO);
         return ResponseEntity.ok(res);
     }
 
     @GetMapping("/test")
-    public List<Candidate> getCandsSort()
+    public CandidateDTO getCandsSort()
     {
-        List<Candidate> lstCands = candidateRepository.findAll(new Sort(Sort.Direction.DESC, "candidateID"));
-        return lstCands;
+        Candidate cand = candidateRepository.findById(3);
+        CandidateDTO candDTO = CandidateMapper.MAPPER.candidateToCandidateDTO(cand);
+        return candDTO;
     }
 
     @GetMapping("/users")
     public ResponseEntity<ResponseMult<CandidateSortDTO>> getCandsSortQuery
     (@RequestParam(name = "orderBy", defaultValue = "candidateID") String orderBy, @RequestParam (name = "sort", defaultValue = "ASC") String sort)
     {
+        // SQL since candidate table does not hold a reference to latest status
         if (orderBy.equalsIgnoreCase("status"))
             orderBy = "statusID";
         String query = 

@@ -15,6 +15,7 @@ public class AdminDTO
     private String email;
     private String firstName;
     private String lastName;
+    private String phoneNum;
     @JsonProperty(access = Access.WRITE_ONLY)
     private String password;
 }

@@ -1,10 +1,13 @@
 package backend.controller;
 
 import backend.repository.*;
-import backend.dto.ApplicationNoCandidateDTO;
+import backend.dto.ApplicationDTO;
 import backend.dto.CandidateDTO;
 import backend.dto.JobDTO;
 import backend.error.*;
+import backend.mapper.ApplicationMapper;
+import backend.mapper.CandidateMapper;
+import backend.mapper.JobMapper;
 import backend.model.Candidate;
 import backend.model.UserType;
 import backend.response.*;
@@ -17,7 +20,6 @@ import javax.persistence.PersistenceContext;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.hibernate.Hibernate;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
@@ -33,8 +35,8 @@ public class CandidateController {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    @PersistenceContext
+    EntityManager entityManager;
 
     @RequestMapping("/greeting")
     public String greeting() {
@@ -42,25 +44,11 @@ public class CandidateController {
 
     }
 
-    @PersistenceContext
-    EntityManager entityManager;
+
 
     @GetMapping("Test")
     public Iterable<Candidate> getAll() {
         return candidateRepository.findAll();
-    }
-
-    // Get a candidate with the specified email
-    @GetMapping(path = "/{email}/info")
-    public ResponseEntity<ResponseSingle<Candidate>> getUser(@PathVariable("email") String email) {
-        // Get the account with this email address
-        Candidate cand = candidateRepository.findByEmail(email);
-        if (cand == null)
-            throw new UserNotFoundException();
-        else {
-            ResponseSingle<Candidate> res = new ResponseSingle<Candidate>(HttpStatus.OK, "Success", cand);
-            return ResponseEntity.ok(res);
-        }
     }
 
     @GetMapping(path = "/{id}")
@@ -70,7 +58,7 @@ public class CandidateController {
         if (cand == null)
             throw new UserNotFoundException();
 
-        CandidateDTO candDTO = modelMapper.map(cand, CandidateDTO.class);
+        CandidateDTO candDTO = CandidateMapper.MAPPER.candidateToCandidateDTO(cand);
         ResponseSingle<CandidateDTO> res = new ResponseSingle<CandidateDTO>(HttpStatus.OK, "Success", candDTO);
         return ResponseEntity.ok(res);
     }
@@ -85,9 +73,8 @@ public class CandidateController {
         UserType candUserType = new UserType();
         candUserType.setUserTypeID(1);
 
-        Candidate cand = modelMapper.map(candDTO, Candidate.class);
+        Candidate cand = CandidateMapper.MAPPER.candidateDTOToCandidate(candDTO);
         cand.getProfile().setUserType(candUserType);
-        
 
         // Check required fields
         if (!cand.getProfile().hasAllFields())
@@ -113,7 +100,7 @@ public class CandidateController {
         // Check if email and password correspond to a user on database
         Candidate cand = candidateRepository.findByEmail(attempt.getEmail());
         if ((cand != null) && (passwordEncoder.matches(attempt.getPassword(), cand.getProfile().getPassword()))) {
-            CandidateDTO candDTO = modelMapper.map(cand, CandidateDTO.class);
+            CandidateDTO candDTO = CandidateMapper.MAPPER.candidateToCandidateDTO(cand);
             ResponseSingle<CandidateDTO> res = new ResponseSingle<CandidateDTO>(HttpStatus.OK, "Success", candDTO);
             return ResponseEntity.ok(res);
         } else
@@ -132,15 +119,16 @@ public class CandidateController {
     }
 
     @GetMapping("/{id}/applications")
-    public ResponseEntity<ResponseMult<ApplicationNoCandidateDTO>> getApps(@PathVariable("id") int id) {
+    public ResponseEntity<ResponseMult<ApplicationDTO>> getApps(@PathVariable("id") int id) {
         Candidate cand = candidateRepository.findById(id);
         if (cand == null)
             throw new UserNotFoundException();
         else 
         {
             Hibernate.initialize(cand.getApplications());
-            List<ApplicationNoCandidateDTO> lstApps = cand.getApplications().stream().map(app -> modelMapper.map(app, ApplicationNoCandidateDTO.class)).collect(Collectors.toList());
-            ResponseMult<ApplicationNoCandidateDTO> res = new ResponseMult<ApplicationNoCandidateDTO>(HttpStatus.OK, "Success", lstApps);
+            //List<ApplicationNoCandidateDTO> lstApps = cand.getApplications().stream().map(app -> modelMapper.map(app, ApplicationNoCandidateDTO.class)).collect(Collectors.toList());
+            List<ApplicationDTO> lstApps = cand.getApplications().stream().map(app -> ApplicationMapper.MAPPER.applicationToApplicationDTO(app)).collect(Collectors.toList());
+            ResponseMult<ApplicationDTO> res = new ResponseMult<ApplicationDTO>(HttpStatus.OK, "Success", lstApps);
             return ResponseEntity.ok(res);
         }
     }
@@ -153,7 +141,7 @@ public class CandidateController {
         else
         {
             Hibernate.initialize(cand.getJobs());
-            List<JobDTO> jobDTOs = cand.getJobs().stream().map(job -> modelMapper.map(job, JobDTO.class)).collect(Collectors.toList());
+            List<JobDTO> jobDTOs = cand.getJobs().stream().map(job -> JobMapper.MAPPER.jobToJobDTO(job)).collect(Collectors.toList());
             ResponseMult<JobDTO> res = new ResponseMult<JobDTO>(HttpStatus.OK, "Success", jobDTOs);
             return ResponseEntity.ok(res);
         }
@@ -201,14 +189,4 @@ public class CandidateController {
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("/testMapper")
-    public Candidate checkMapper(@RequestBody CandidateDTO candDTO) 
-    {
-        System.out.println(candDTO.getEmail());
-        System.out.println(candDTO.getStreetAddress());
-        Candidate cand = modelMapper.map(candDTO, Candidate.class);
-        System.out.println(cand.getProfile().getEmail());
-        System.out.println(cand.getStreetAddress());
-        return cand;
-    }
 }

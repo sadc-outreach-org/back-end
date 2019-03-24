@@ -9,7 +9,7 @@ import lombok.Setter;
 public class ApplicationDTO 
 {
     private int applicationID;
-    private RequisitionDTO requisition;
+    private RequisitionWithoutAdminDTO requisition;
     private CandidateSummaryDTO candidate;
     private AdminDTO admin;
     private String status;

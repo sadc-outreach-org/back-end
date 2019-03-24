@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.hibernate.Hibernate;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.dto.AdminDTO;
-import backend.dto.RequisitionSummaryDTO;
+import backend.dto.RequisitionWithoutAdminDTO;
 import backend.error.InvalidLoginException;
 import backend.error.UserNotFoundException;
+import backend.mapper.AdminMapper;
+import backend.mapper.RequisitionMapper;
 import backend.model.Admin;
 import backend.repository.AdminRepository;
 import backend.request.Login;
@@ -34,9 +35,6 @@ public class AdminController
     private AdminRepository adminRepository;
 
     @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
 
@@ -46,7 +44,7 @@ public class AdminController
         // Get the account with this email address
         Admin admin = adminRepository.findById(id);
         if (admin == null) throw new UserNotFoundException();
-        AdminDTO adminDTO = modelMapper.map(admin, AdminDTO.class);
+        AdminDTO adminDTO = AdminMapper.MAPPER.adminToAdminDTO(admin);
         ResponseSingle<AdminDTO> res = new ResponseSingle<AdminDTO>(HttpStatus.OK, "Success", adminDTO);
         return ResponseEntity.ok(res);
     }
@@ -68,7 +66,7 @@ public class AdminController
 
 
     @GetMapping("/{id}/requisitions")
-    public ResponseEntity<ResponseMult<RequisitionSummaryDTO>> getReqs(@PathVariable("id") int id)
+    public ResponseEntity<ResponseMult<RequisitionWithoutAdminDTO>> getReqs(@PathVariable("id") int id)
     {
         Admin admin = adminRepository.findById(id);
         if (admin == null) throw new UserNotFoundException();
@@ -76,8 +74,8 @@ public class AdminController
         {
             // Force initialization
             Hibernate.initialize(admin.getRequisitions());
-            List<RequisitionSummaryDTO> reqDTO = admin.getRequisitions().stream().map(req -> modelMapper.map(req, RequisitionSummaryDTO.class)).collect(Collectors.toList());
-            ResponseMult<RequisitionSummaryDTO> res = new ResponseMult<RequisitionSummaryDTO>(HttpStatus.OK, "Success", reqDTO);
+            List<RequisitionWithoutAdminDTO> reqDTO = admin.getRequisitions().stream().map(req -> RequisitionMapper.MAPPER.requisitionToRequisitionWithoutAdminDTO(req)).collect(Collectors.toList());
+            ResponseMult<RequisitionWithoutAdminDTO> res = new ResponseMult<RequisitionWithoutAdminDTO>(HttpStatus.OK, "Success", reqDTO);
             return ResponseEntity.ok(res);
         }
     }
