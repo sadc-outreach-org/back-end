@@ -1,14 +1,16 @@
 package backend.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ColumnResult;
+import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Table;
-
+import javax.persistence.SqlResultSetMapping;
+import backend.dto.CandidateSortDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,6 +27,19 @@ import javax.persistence.OrderBy;
 
 @Getter
 @Setter
+@SqlResultSetMapping(
+    name = "CandidateSortDTO",
+    classes = @ConstructorResult(
+        targetClass = CandidateSortDTO.class,
+        columns = {
+            @ColumnResult(name = "candidateID"),
+            @ColumnResult(name = "email"),
+            @ColumnResult(name = "firstName"),
+            @ColumnResult(name = "lastName"),
+            @ColumnResult(name = "status")
+        }
+    )
+)
 @Entity
 @Table(name = "Candidate")
 public class Candidate 

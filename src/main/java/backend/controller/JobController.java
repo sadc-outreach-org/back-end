@@ -3,6 +3,9 @@ package backend.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +14,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import backend.dto.AdminDTO;
 import backend.dto.ApplicationDTO;
-import backend.dto.CandidateDTO;
+import backend.dto.ApplicationSummaryDTO;
+import backend.dto.CandidateSortDTO;
 import backend.dto.JobDTO;
-import backend.dto.RequisitionApplicationsDTO;
 import backend.dto.RequisitionDTO;
 import backend.error.RecordNotFoundException;
 import backend.model.Application;
@@ -52,13 +56,17 @@ public class JobController
     @Autowired
     private AdminRepository adminRepository;
 
+    @PersistenceContext
+    private EntityManager em;
+
+    /*
     @GetMapping("/users")
-    public ResponseEntity<ResponseMult<CandidateDTO>> getCands()
+    public ResponseEntity<ResponseMult<CandidateSummaryDTO>> getCands()
      {
-        List<CandidateDTO> lstCandDTO = candidateRepository.findAll().stream().map(cand -> modelMapper.map(cand, CandidateDTO.class)).collect(Collectors.toList());
-        ResponseMult<CandidateDTO> res = new ResponseMult<CandidateDTO>(HttpStatus.OK, "Success", lstCandDTO);
+        List<CandidateSummaryDTO> lstCandDTO = candidateRepository.findAll().stream().map(cand -> modelMapper.map(cand, CandidateSummaryDTO.class)).collect(Collectors.toList());
+        ResponseMult<CandidateSummaryDTO> res = new ResponseMult<CandidateSummaryDTO>(HttpStatus.OK, "Success", lstCandDTO);
         return ResponseEntity.ok(res);
-    }
+     }*/
 
     // Testing, getting all admins accounts
     @GetMapping("/admins")
@@ -118,12 +126,12 @@ public class JobController
     }
 
     @GetMapping("/requisitions/{id}/applications")
-    public ResponseEntity<ResponseSingle<RequisitionApplicationsDTO>> getReqApps(@PathVariable("id") int id)
+    public ResponseEntity<ResponseMult<ApplicationSummaryDTO>> getReqApps(@PathVariable("id") int id)
     {
         Requisition req = requisitionRepository.findById(id);
         Hibernate.initialize(req.getApplications());
-        RequisitionApplicationsDTO reqDTO = modelMapper.map(req, RequisitionApplicationsDTO.class);
-        ResponseSingle<RequisitionApplicationsDTO> res = new ResponseSingle<RequisitionApplicationsDTO>(HttpStatus.OK, "Success", reqDTO);
+        List<ApplicationSummaryDTO> lstAppDTO = req.getApplications().stream().map(app -> modelMapper.map(app, ApplicationSummaryDTO.class)).collect(Collectors.toList());
+        ResponseMult<ApplicationSummaryDTO> res = new ResponseMult<ApplicationSummaryDTO>(HttpStatus.OK, "Success", lstAppDTO);
         return ResponseEntity.ok(res);
     }
 
@@ -136,10 +144,39 @@ public class JobController
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("test")
+    @GetMapping("/test")
     public List<Candidate> getCandsSort()
     {
         List<Candidate> lstCands = candidateRepository.findAll(new Sort(Sort.Direction.DESC, "candidateID"));
         return lstCands;
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<ResponseMult<CandidateSortDTO>> getCandsSortQuery
+    (@RequestParam(name = "orderBy", defaultValue = "candidateID") String orderBy, @RequestParam (name = "sort", defaultValue = "ASC") String sort)
+    {
+        if (orderBy.equalsIgnoreCase("status"))
+            orderBy = "statusID";
+        String query = 
+        " Select c.*, s.status FROM "
+        +   "(Select cand.*, appMax.statusID FROM "
+        +       "(Select candidateID, MAX(statusID) as statusID "
+        +           "From `Application` "
+        +           "Group By candidateID) appMax "
+        +       "Right Outer Join "
+        +           "(Select c.candidateID, u.email, u.firstName, u.LastName "
+        +           "FROM `Candidate` c "
+        +           "Inner Join " 
+        +                "User u "
+        +           "On c.userID = u.userID) cand "
+        +        "On cand.candidateID = appMax.candidateID "
+        +   ") c "
+        +"Left Outer Join "
+        +   "`Status` s "
+        +"On c.statusId = s.statusID "
+        +"Order By " + orderBy  + " " + sort;
+        List<CandidateSortDTO> lstCandSortDTO = em.createNativeQuery(query, "CandidateSortDTO").getResultList();
+        ResponseMult<CandidateSortDTO>  res = new ResponseMult<CandidateSortDTO>(HttpStatus.OK, "Success", lstCandSortDTO);
+        return ResponseEntity.ok(res);
     }
 }
