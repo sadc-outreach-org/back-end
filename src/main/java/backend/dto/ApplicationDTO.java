@@ -13,4 +13,5 @@ public class ApplicationDTO
     private CandidateSummaryDTO candidate;
     private AdminDTO admin;
     private String status;
+    private String gitLink;
 }

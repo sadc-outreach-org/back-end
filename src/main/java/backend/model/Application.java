@@ -28,11 +28,11 @@ public class Application
     private int applicationID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="candidateID", insertable=false, updatable=false, nullable=false)
+    @JoinColumn(name="candidateID", updatable=false, nullable=false)
     private Candidate candidate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="requisitionID", insertable=false, updatable=false, nullable=false)
+    @JoinColumn(name="requisitionID", updatable=false, nullable=false)
     private Requisition requisition;
 
     @OneToOne (cascade = CascadeType.ALL, 
