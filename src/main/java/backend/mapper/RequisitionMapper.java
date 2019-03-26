@@ -5,6 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import backend.dto.RequisitionAddDTO;
 import backend.dto.RequisitionDTO;
 import backend.dto.RequisitionWithoutAdminDTO;
 import backend.model.Requisition;
@@ -26,4 +27,8 @@ public interface RequisitionMapper {
     @Mapping(source = "job.description", target = "description")
     @Mapping(source = "job.requirements", target = "requirements")
     RequisitionWithoutAdminDTO requisitionToRequisitionWithoutAdminDTO(Requisition requisition);
+
+    @Mapping(source = "jobID", target = "job.jobID")
+    @Mapping(source = "adminID", target = "admin.adminID")
+    Requisition requisitionAddDTOToRequisition(RequisitionAddDTO requisitionAddDTO);
 }

@@ -12,13 +12,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import backend.dto.AdminDTO;
+import backend.dto.ApplicationAddDTO;
 import backend.dto.ApplicationDTO;
 import backend.dto.CandidateDTO;
 import backend.dto.CandidateSortDTO;
 import backend.dto.JobDTO;
+import backend.dto.RequisitionAddDTO;
 import backend.dto.RequisitionDTO;
 import backend.error.RecordNotFoundException;
 import backend.mapper.AdminMapper;
@@ -30,11 +34,14 @@ import backend.model.Application;
 import backend.model.Candidate;
 import backend.model.Job;
 import backend.model.Requisition;
+import backend.model.Status;
 import backend.repository.AdminRepository;
 import backend.repository.ApplicationRepository;
 import backend.repository.CandidateRepository;
 import backend.repository.JobRepository;
 import backend.repository.RequisitionRepository;
+import backend.repository.StatusRepository;
+import backend.response.APIResponse;
 import backend.response.ResponseMult;
 import backend.response.ResponseSingle;
 
@@ -55,6 +62,9 @@ public class JobController
 
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private StatusRepository statusRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -115,6 +125,16 @@ public class JobController
         return ResponseEntity.ok(res);
     }
 
+    @PostMapping("/requisitions")
+    public ResponseEntity<APIResponse> addRequisition(@RequestBody RequisitionAddDTO requisitionAddDTO)
+    {
+        Requisition requisition = RequisitionMapper.MAPPER.requisitionAddDTOToRequisition(requisitionAddDTO);
+        requisitionRepository.save(requisition);
+        APIResponse res = new APIResponse(HttpStatus.OK, "A requisition has been added");
+        return ResponseEntity.ok(res);
+
+    }
+
 
     @GetMapping("/requisitions/{reqID}")
     public ResponseEntity<ResponseSingle<RequisitionDTO>> getReq(@PathVariable("reqID") int reqID)
@@ -132,6 +152,19 @@ public class JobController
         Hibernate.initialize(req.getApplications());
         List<ApplicationDTO> lstAppDTO = req.getApplications().stream().map(app -> ApplicationMapper.MAPPER.applicationToApplicationDTO(app)).collect(Collectors.toList());
         ResponseMult<ApplicationDTO> res = new ResponseMult<ApplicationDTO>(HttpStatus.OK, "Success", lstAppDTO);
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/applications")
+    public ResponseEntity<APIResponse> addApplication(@RequestBody ApplicationAddDTO appAddDTO)
+    {
+        Application app = ApplicationMapper.MAPPER.applicationAddDTOToApplication(appAddDTO);
+        Status status   = statusRepository.findById(1);
+        app.setStatus(status);
+        System.out.println(app.getCandidate().getCandidateID());
+        System.out.println(app.getRequisition().getRequisitionID());
+        applicationRepository.save(app);
+        APIResponse res = new APIResponse(HttpStatus.OK, "An application has been added");
         return ResponseEntity.ok(res);
     }
 
