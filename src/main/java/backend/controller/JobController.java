@@ -161,8 +161,6 @@ public class JobController
         Application app = ApplicationMapper.MAPPER.applicationAddDTOToApplication(appAddDTO);
         Status status   = statusRepository.findById(1);
         app.setStatus(status);
-        System.out.println(app.getCandidate().getCandidateID());
-        System.out.println(app.getRequisition().getRequisitionID());
         applicationRepository.save(app);
         APIResponse res = new APIResponse(HttpStatus.OK, "An application has been added");
         return ResponseEntity.ok(res);
