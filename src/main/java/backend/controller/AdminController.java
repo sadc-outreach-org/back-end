@@ -17,12 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import backend.dto.AdminDTO;
 import backend.dto.RequisitionWithoutAdminDTO;
+import backend.error.EmailInUseException;
 import backend.error.InvalidLoginException;
+import backend.error.MissingInfomationException;
 import backend.error.UserNotFoundException;
 import backend.mapper.AdminMapper;
 import backend.mapper.RequisitionMapper;
 import backend.model.Admin;
+import backend.model.UserType;
 import backend.repository.AdminRepository;
+import backend.repository.ProfileRepository;
 import backend.request.Login;
 import backend.response.ResponseMult;
 import backend.response.ResponseSingle;
@@ -35,8 +39,53 @@ public class AdminController
     private AdminRepository adminRepository;
 
     @Autowired
+    private ProfileRepository profileRepository;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @PostMapping("/signup")
+    public ResponseEntity<ResponseSingle<AdminDTO>> signUp(@RequestBody AdminDTO adminDTO) {
+        // Check if email already in used
+        if (profileRepository.findByEmail(adminDTO.getEmail()) != null)
+            throw new EmailInUseException();
+
+        UserType adminUserType = new UserType();
+        adminUserType.setUserTypeID(2);
+
+        Admin admin = AdminMapper.MAPPER.adminDTOToAdmin(adminDTO);
+        admin.getProfile().setUserType(adminUserType);
+
+        // Check required fields
+        if (!admin.getProfile().hasAllFields())
+            throw new MissingInfomationException();
+        // Add user to the database
+        else {
+            // Encode password, save to database and exit with status code 200
+            admin.getProfile().setPassword(passwordEncoder.encode(admin.getProfile().getPassword()));
+            adminRepository.save(admin);
+            adminDTO.setAdminID(admin.getAdminID());
+            ResponseSingle<AdminDTO> res = new ResponseSingle<AdminDTO>(HttpStatus.OK, "Signup Success",
+                    adminDTO);
+            return ResponseEntity.ok(res);
+        }
+    }
+
+    // Process a login attempt, return an exception if login with incorrect credentials
+    @PostMapping("/login")
+    public ResponseEntity<ResponseSingle<AdminDTO>> login(@RequestBody Login attempt) {
+        if (attempt.getPassword() == null || attempt.getEmail() == null) throw new InvalidLoginException();
+        // Check if email and password correspond to a user on database
+        Admin admin = adminRepository.findByEmail(attempt.getEmail());
+        AdminDTO adminDTO = AdminMapper.MAPPER.adminToAdminDTO(admin);
+        if ( (admin != null) &&
+            (passwordEncoder.matches(attempt.getPassword(), admin.getProfile().getPassword())) )
+        {
+            ResponseSingle<AdminDTO> res = new ResponseSingle<AdminDTO>(HttpStatus.OK, "Success", adminDTO);
+            return ResponseEntity.ok(res);
+        }
+        else throw new InvalidLoginException();
+    }
 
 
     @GetMapping(path = "/{id}")
@@ -47,21 +96,6 @@ public class AdminController
         AdminDTO adminDTO = AdminMapper.MAPPER.adminToAdminDTO(admin);
         ResponseSingle<AdminDTO> res = new ResponseSingle<AdminDTO>(HttpStatus.OK, "Success", adminDTO);
         return ResponseEntity.ok(res);
-    }
-
-    // Process a login attempt, return an exception if login with incorrect credentials
-    @PostMapping("/login")
-    public ResponseEntity<ResponseSingle<Admin>> login(@RequestBody Login attempt) {
-        if (attempt.getPassword() == null || attempt.getEmail() == null) throw new InvalidLoginException();
-        // Check if email and password correspond to a user on database
-        Admin admin = adminRepository.findByEmail(attempt.getEmail());
-        if ( (admin != null) &&
-            (passwordEncoder.matches(attempt.getPassword(), admin.getProfile().getPassword())) )
-        {
-            ResponseSingle<Admin> res = new ResponseSingle<Admin>(HttpStatus.OK, "Success", admin);
-            return ResponseEntity.ok(res);
-        }
-        else throw new InvalidLoginException();
     }
 
 

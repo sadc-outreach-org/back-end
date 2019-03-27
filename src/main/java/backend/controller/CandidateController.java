@@ -33,6 +33,9 @@ public class CandidateController {
     private CandidateRepository candidateRepository;
 
     @Autowired
+    private ProfileRepository profileRepository;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @PersistenceContext
@@ -43,8 +46,6 @@ public class CandidateController {
         return "This is HEB team greeting message";
 
     }
-
-
 
     @GetMapping("Test")
     public Iterable<Candidate> getAll() {
@@ -67,7 +68,7 @@ public class CandidateController {
     @PostMapping("/signup")
     public ResponseEntity<ResponseSingle<CandidateDTO>> signUp(@RequestBody CandidateDTO candDTO) {
         // Check if email already in used
-        if (candidateRepository.findByEmail(candDTO.getEmail()) != null)
+        if (profileRepository.findByEmail(candDTO.getEmail()) != null)
             throw new EmailInUseException();
 
         UserType candUserType = new UserType();
