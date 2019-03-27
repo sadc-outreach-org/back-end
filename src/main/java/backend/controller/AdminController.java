@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import backend.Utility.EmailServiceService;
 import backend.dto.AdminDTO;
 import backend.dto.RequisitionWithoutAdminDTO;
 import backend.error.EmailInUseException;
@@ -30,7 +31,9 @@ import backend.repository.ProfileRepository;
 import backend.request.Login;
 import backend.response.ResponseMult;
 import backend.response.ResponseSingle;
+import it.ozimov.springboot.mail.configuration.EnableEmailTools;
 
+@EnableEmailTools
 @RestController
 @RequestMapping("/admins")
 public class AdminController 
@@ -40,6 +43,9 @@ public class AdminController
 
     @Autowired
     private ProfileRepository profileRepository;
+
+    @Autowired
+    private EmailServiceService emailServiceService;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;

@@ -44,7 +44,9 @@ import backend.repository.StatusRepository;
 import backend.response.APIResponse;
 import backend.response.ResponseMult;
 import backend.response.ResponseSingle;
+import it.ozimov.springboot.mail.configuration.EnableEmailTools;
 
+@EnableEmailTools
 @RestController
 public class JobController
 {

@@ -1,6 +1,7 @@
 package backend.controller;
 
 import backend.repository.*;
+import backend.Utility.EmailServiceService;
 import backend.dto.ApplicationDTO;
 import backend.dto.CandidateDTO;
 import backend.dto.JobDTO;
@@ -11,10 +12,13 @@ import backend.mapper.JobMapper;
 import backend.model.Candidate;
 import backend.model.UserType;
 import backend.response.*;
+import it.ozimov.springboot.mail.configuration.EnableEmailTools;
 import backend.request.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.mail.internet.AddressException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +30,7 @@ import org.springframework.http.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @RestController
+@EnableEmailTools
 @RequestMapping("/users")
 public class CandidateController {
 
@@ -40,6 +45,9 @@ public class CandidateController {
 
     @PersistenceContext
     EntityManager entityManager;
+
+    @Autowired
+    private EmailServiceService emailServiceService;
 
     @RequestMapping("/greeting")
     public String greeting() {
@@ -88,6 +96,11 @@ public class CandidateController {
             candDTO.setCandidateID(cand.getCandidateID());
             ResponseSingle<CandidateDTO> res = new ResponseSingle<CandidateDTO>(HttpStatus.OK, "Signup Success",
                     candDTO);
+            try {
+                emailServiceService.sendSignUpEmail(candDTO.getEmail());
+            } catch (AddressException e) {
+                e.printStackTrace();
+            }
             return ResponseEntity.ok(res);
         }
     }
