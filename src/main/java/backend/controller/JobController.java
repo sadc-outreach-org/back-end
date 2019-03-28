@@ -132,7 +132,7 @@ public class JobController
     {
         Requisition requisition = RequisitionMapper.MAPPER.requisitionAddDTOToRequisition(requisitionAddDTO);
         requisitionRepository.save(requisition);
-        APIResponse res = new APIResponse(HttpStatus.OK, "A requisition has been added");
+        APIResponse res = new APIResponse(HttpStatus.OK, "A requisition has been added for job with ID : " + requisition.getJob().getJobID());
         return ResponseEntity.ok(res);
 
     }
@@ -164,7 +164,8 @@ public class JobController
         Status status   = statusRepository.findById(1);
         app.setStatus(status);
         applicationRepository.save(app);
-        APIResponse res = new APIResponse(HttpStatus.OK, "An application has been added");
+        APIResponse res = new APIResponse(HttpStatus.OK, "An application has been added for candidate with ID " + app.getCandidate().getCandidateID() 
+                                        + " for requisition with ID :" + app.getRequisition().getRequisitionID());
         return ResponseEntity.ok(res);
     }
 

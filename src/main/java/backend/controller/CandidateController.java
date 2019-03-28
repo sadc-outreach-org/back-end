@@ -183,7 +183,7 @@ public class CandidateController {
 
             jobs.add(job);
             candidateRepository.save(cand);
-            APIResponse res = new APIResponse(HttpStatus.OK, "Success");
+            APIResponse res = new APIResponse(HttpStatus.OK, "Job for " + job.getTitle() + " has been added to candidate with ID : " + cand.getCandidateID());
             return ResponseEntity.ok(res);
         }
     }
