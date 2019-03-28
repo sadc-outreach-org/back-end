@@ -10,12 +10,14 @@ import backend.mapper.ApplicationMapper;
 import backend.mapper.CandidateMapper;
 import backend.mapper.JobMapper;
 import backend.model.Candidate;
+import backend.model.Job;
 import backend.model.UserType;
 import backend.response.*;
 import it.ozimov.springboot.mail.configuration.EnableEmailTools;
 import backend.request.*;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.mail.internet.AddressException;
@@ -39,6 +41,9 @@ public class CandidateController {
 
     @Autowired
     private ProfileRepository profileRepository;
+
+    @Autowired
+    private JobRepository jobRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -157,6 +162,28 @@ public class CandidateController {
             Hibernate.initialize(cand.getJobs());
             List<JobDTO> jobDTOs = cand.getJobs().stream().map(job -> JobMapper.MAPPER.jobToJobDTO(job)).collect(Collectors.toList());
             ResponseMult<JobDTO> res = new ResponseMult<JobDTO>(HttpStatus.OK, "Success", jobDTOs);
+            return ResponseEntity.ok(res);
+        }
+    }
+
+    @PostMapping("/{id}/jobs")
+    public ResponseEntity<APIResponse> addJobs(@RequestBody CandToJob candToJob)
+    {
+        Candidate cand = candidateRepository.findById(candToJob.getCandidateID());
+        if (cand == null) throw new UserNotFoundException();
+        else
+        {
+            Hibernate.initialize(cand.getJobs());
+            Set<Job> jobs = cand.getJobs();
+
+            // Check if job exists and that user has not applied for this job already
+            Job job = jobRepository.findById(candToJob.getJobID());
+            if (job == null) throw new JobNotFoundException();
+            if (jobs.contains(job)) throw new JobExistsForCandidateException();
+
+            jobs.add(job);
+            candidateRepository.save(cand);
+            APIResponse res = new APIResponse(HttpStatus.OK, "Success");
             return ResponseEntity.ok(res);
         }
     }

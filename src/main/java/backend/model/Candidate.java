@@ -1,6 +1,7 @@
 package backend.model;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -75,7 +76,7 @@ public class Candidate
     @JoinTable(name = "CandToJob",
                 joinColumns         = @JoinColumn(name = "candidateID"),
                 inverseJoinColumns  = @JoinColumn(name = "jobID"))
-    private List<Job> jobs;
+    private Set<Job> jobs;
 
     @OneToMany(mappedBy = "candidate",
                 cascade = CascadeType.ALL,

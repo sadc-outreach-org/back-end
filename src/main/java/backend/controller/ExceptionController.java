@@ -10,13 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import backend.error.APIError;
-import backend.error.UserNotFoundException;
-import backend.error.InvalidLoginException;
-import backend.error.MissingInfomationException;
-import backend.error.RecordNotFoundException;
-import backend.error.ResumeNotFoundException;
-import backend.error.EmailInUseException;
+import backend.error.*;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
@@ -74,10 +68,26 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(RecordNotFoundException.class)
-    protected ResponseEntity<APIError> handleRecordNotFound(EmailInUseException ex)
+    protected ResponseEntity<APIError> handleRecordNotFound(RecordNotFoundException ex)
     {
         HttpStatus status = HttpStatus.FORBIDDEN;
         APIError error = new APIError(status, "This record does not exist");
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(JobExistsForCandidateException.class)
+    protected ResponseEntity<APIError> handleJobExistForCandidate(JobExistsForCandidateException ex)
+    {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        APIError error = new APIError(status, "This user has already applied for this job");
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(JobNotFoundException.class)
+    protected ResponseEntity<APIError> handleJobNotFound(JobNotFoundException ex)
+    {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        APIError error = new APIError(status, "This job does not exist");
         return ResponseEntity.status(status).body(error);
     }
 }
