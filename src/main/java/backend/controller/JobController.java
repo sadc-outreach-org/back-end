@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import backend.dto.AdminDTO;
-import backend.dto.ApplicationAddDTO;
+import backend.dto.ApplicationAddJobDTO;
+import backend.dto.ApplicationAddReqDTO;
 import backend.dto.ApplicationDTO;
 import backend.dto.CandidateDTO;
 import backend.dto.CandidateSortDTO;
@@ -157,24 +158,38 @@ public class JobController
         return ResponseEntity.ok(res);
     }
 
-    @PostMapping("/applications")
-    public ResponseEntity<APIResponse> addApplication(@RequestBody ApplicationAddDTO appAddDTO)
+/*    @PostMapping("/applications")
+    public ResponseEntity<APIResponse> addApplicationReq(@RequestBody ApplicationAddReqDTO appAddDTO)
     {
-        Application app = ApplicationMapper.MAPPER.applicationAddDTOToApplication(appAddDTO);
+        Application app = ApplicationMapper.MAPPER.applicationAddReqDTOToApplication(appAddDTO);
         Status status   = statusRepository.findById(1);
         app.setStatus(status);
         applicationRepository.save(app);
         APIResponse res = new APIResponse(HttpStatus.OK, "An application has been added for candidate with ID " + app.getCandidate().getCandidateID() 
                                         + " for requisition with ID :" + app.getRequisition().getRequisitionID());
         return ResponseEntity.ok(res);
+    }*/
+
+    @PostMapping("jobs/{jobID}/applications")
+    public ResponseEntity<APIResponse> addApplicationJob(@PathVariable("jobID") int jobID, @RequestBody ApplicationAddJobDTO appAddJobDTO)
+    {
+        List<Requisition> reqs  = requisitionRepository.findOpenRequisitionByJobID(appAddJobDTO.getJobID());
+        Application app         = new Application();
+        app.setCandidate(candidateRepository.findById(appAddJobDTO.getCandidateID()));
+        app.setRequisition(reqs.get(0));
+        app.setStatus(statusRepository.findById(1));
+        applicationRepository.save(app);
+        APIResponse res         = new APIResponse(HttpStatus.OK, "An application has been added for candidate with ID " + app.getCandidate().getCandidateID() 
+                                        + " for requisition with ID: " + app.getRequisition().getRequisitionID());
+        return ResponseEntity.ok(res);
     }
 
     @GetMapping("/applications/{id}")
     public ResponseEntity<ResponseSingle<ApplicationDTO>> getApp(@PathVariable("id") int id)
     {
-        Application app = applicationRepository.findById(id);
-        ApplicationDTO appDTO = ApplicationMapper.MAPPER.applicationToApplicationDTO(app);
-        ResponseSingle<ApplicationDTO> res = new ResponseSingle<ApplicationDTO>(HttpStatus.OK, "Success", appDTO);
+        Application app                     = applicationRepository.findById(id);
+        ApplicationDTO appDTO               = ApplicationMapper.MAPPER.applicationToApplicationDTO(app);
+        ResponseSingle<ApplicationDTO> res  = new ResponseSingle<ApplicationDTO>(HttpStatus.OK, "Success", appDTO);
         return ResponseEntity.ok(res);
     }
 

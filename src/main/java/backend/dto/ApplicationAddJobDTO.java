@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class ApplicationAddDTO
+public class ApplicationAddJobDTO
 {
-    private int requisitionID;
+    private int jobID;
     private int candidateID;
 }
