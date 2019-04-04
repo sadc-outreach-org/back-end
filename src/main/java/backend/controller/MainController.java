@@ -47,6 +47,7 @@ import backend.repository.JobRepository;
 import backend.repository.RequisitionRepository;
 import backend.repository.StatusRepository;
 import backend.request.Login;
+import backend.request.GitLink;
 import backend.response.APIResponse;
 import backend.response.ResponseMult;
 import backend.response.ResponseSingle;
@@ -99,9 +100,20 @@ public class MainController
     }
 
     @GetMapping("/jobs")
-    public ResponseEntity<ResponseMult<JobDTO>> getJobs()
+    public ResponseEntity<ResponseMult<JobDTO>> getJobs(@RequestParam(name = "open", defaultValue = "none") String open)
     {
-        List<JobDTO> lstJobDTO = jobRepository.findAll().stream().map(job -> JobMapper.MAPPER.jobToJobDTO(job)).collect(Collectors.toList());
+        List<JobDTO> lstJobDTO;
+        if (open.equalsIgnoreCase("none"))
+            lstJobDTO = jobRepository.findAll().stream().map(job -> JobMapper.MAPPER.jobToJobDTO(job)).collect(Collectors.toList());
+        else
+        {
+            String query = 
+            "SELECT Job.*" 
+            + " FROM (SELECT DISTINCT jobID FROM Requisition WHERE isOpen=" + open + ") as openJobs"
+            + " LEFT OUTER JOIN Job"
+            + " ON openJobs.jobID = Job.jobID;";
+            lstJobDTO = em.createNativeQuery(query, "JobDTO").getResultList();
+        }
         ResponseMult<JobDTO> res = new ResponseMult<JobDTO>(HttpStatus.OK, "Success", lstJobDTO);
         return ResponseEntity.ok(res);
     }
@@ -140,12 +152,14 @@ public class MainController
     public ResponseEntity<APIResponse> addRequisition(@RequestBody RequisitionAddDTO requisitionAddDTO)
     {
         Requisition requisition = RequisitionMapper.MAPPER.requisitionAddDTOToRequisition(requisitionAddDTO);
+        requisition.setOpen(true);
         requisitionRepository.save(requisition);
         APIResponse res = new APIResponse(HttpStatus.OK, "A requisition has been added for job with ID : " + requisition.getJob().getJobID());
         return ResponseEntity.ok(res);
 
     }
 
+    
 
     @GetMapping("/requisitions/{reqID}")
     public ResponseEntity<ResponseSingle<RequisitionDTO>> getReq(@PathVariable("reqID") int reqID)
@@ -191,12 +205,26 @@ public class MainController
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("/applications/{id}")
-    public ResponseEntity<ResponseSingle<ApplicationDTO>> getApp(@PathVariable("id") int id)
+    @GetMapping("/applications/{appID}")
+    public ResponseEntity<ResponseSingle<ApplicationDTO>> getApp(@PathVariable("appID") int appID)
     {
-        Application app                     = applicationRepository.findById(id);
+        Application app                     = applicationRepository.findById(appID);
         ApplicationDTO appDTO               = ApplicationMapper.MAPPER.applicationToApplicationDTO(app);
         ResponseSingle<ApplicationDTO> res  = new ResponseSingle<ApplicationDTO>(HttpStatus.OK, "Success", appDTO);
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/applications/{appID}/gitLink")
+    public ResponseEntity<ResponseSingle<ApplicationDTO>> postGitLink(@PathVariable("appID") int appID, @RequestBody GitLink gitLink)
+    {
+        Application app                     = applicationRepository.findById(appID);
+        // If already candidate already beyond the submit git link step, don't change the status
+        if (app.getStatus().getStatusID() <= 1)
+            app.setStatus(statusRepository.findById(2));
+        app.setGitLink(gitLink.getGitLink());
+        applicationRepository.save(app);
+        ApplicationDTO appDTO               = ApplicationMapper.MAPPER.applicationToApplicationDTO(app);
+        ResponseSingle<ApplicationDTO> res  = new ResponseSingle<ApplicationDTO>(HttpStatus.OK, "Application has been updated", appDTO);
         return ResponseEntity.ok(res);
     }
 
@@ -268,4 +296,5 @@ public class MainController
         ResponseSingle<LogInResultDTO> res = new ResponseSingle<LogInResultDTO>(HttpStatus.OK, "Success", user);
         return ResponseEntity.ok(res);
     }
+
 }

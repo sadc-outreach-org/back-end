@@ -12,13 +12,30 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.SqlResultSetMapping;
+import javax.persistence.ConstructorResult;
+import javax.persistence.ColumnResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+import backend.dto.JobDTO;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@SqlResultSetMapping(
+    name = "JobDTO",
+    classes = @ConstructorResult(
+        targetClass = JobDTO.class,
+        columns = {
+            @ColumnResult(name = "jobID"),
+            @ColumnResult(name = "title"),
+            @ColumnResult(name = "description"),
+            @ColumnResult(name = "requirements")
+        }
+    )
+)
 @Entity
 @Table(name = "Job")
 @JsonInclude(Include.NON_NULL)

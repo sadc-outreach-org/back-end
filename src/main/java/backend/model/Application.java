@@ -42,4 +42,5 @@ public class Application
 
     @Column(name = "gitLink")
     private String gitLink;
+
 }
