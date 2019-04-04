@@ -36,11 +36,8 @@ public class Requisition
     @JoinColumn(name = "jobID")
     private Job job;
 
-    /*
-    @JsonIgnore
-    @ManyToMany(mappedBy = "requisitions",
-                fetch = FetchType.LAZY)
-    private List<Candidate> candidates;*/
+    @Column(name = "isOpen", nullable = false, columnDefinition="TINYINT", length = 1)
+    private boolean isOpen;
 
     @OneToMany(mappedBy = "requisition",
             cascade = CascadeType.ALL,
