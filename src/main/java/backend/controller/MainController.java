@@ -10,6 +10,7 @@ import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,14 +24,17 @@ import backend.dto.ApplicationDTO;
 import backend.dto.CandidateDTO;
 import backend.dto.CandidateSortDTO;
 import backend.dto.JobDTO;
+import backend.dto.LogInResultDTO;
 import backend.dto.RequisitionAddDTO;
 import backend.dto.RequisitionDTO;
+import backend.error.InvalidLoginException;
 import backend.error.RecordNotFoundException;
 import backend.mapper.AdminMapper;
 import backend.mapper.ApplicationMapper;
 import backend.mapper.CandidateMapper;
 import backend.mapper.JobMapper;
 import backend.mapper.RequisitionMapper;
+import backend.model.Admin;
 import backend.model.Application;
 import backend.model.Candidate;
 import backend.model.Job;
@@ -42,6 +46,7 @@ import backend.repository.CandidateRepository;
 import backend.repository.JobRepository;
 import backend.repository.RequisitionRepository;
 import backend.repository.StatusRepository;
+import backend.request.Login;
 import backend.response.APIResponse;
 import backend.response.ResponseMult;
 import backend.response.ResponseSingle;
@@ -49,7 +54,7 @@ import it.ozimov.springboot.mail.configuration.EnableEmailTools;
 
 @EnableEmailTools
 @RestController
-public class JobController
+public class MainController
 {
     @Autowired
     private JobRepository jobRepository;
@@ -68,6 +73,9 @@ public class JobController
 
     @Autowired
     private StatusRepository statusRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @PersistenceContext
     private EntityManager em;
@@ -148,27 +156,26 @@ public class JobController
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("/requisitions/{id}/applications")
-    public ResponseEntity<ResponseMult<ApplicationDTO>> getReqApps(@PathVariable("id") int id)
+    @GetMapping("/requisitions/{reqID}/applications")
+    public ResponseEntity<ResponseMult<ApplicationDTO>> getReqApps(@PathVariable("reqID") int reqID)
     {
-        Requisition req = requisitionRepository.findById(id);
+        Requisition req = requisitionRepository.findById(reqID);
         Hibernate.initialize(req.getApplications());
         List<ApplicationDTO> lstAppDTO = req.getApplications().stream().map(app -> ApplicationMapper.MAPPER.applicationToApplicationDTO(app)).collect(Collectors.toList());
         ResponseMult<ApplicationDTO> res = new ResponseMult<ApplicationDTO>(HttpStatus.OK, "Success", lstAppDTO);
         return ResponseEntity.ok(res);
     }
 
-/*    @PostMapping("/applications")
-    public ResponseEntity<APIResponse> addApplicationReq(@RequestBody ApplicationAddReqDTO appAddDTO)
+    @PostMapping("requisitions/{reqID}/applications")
+    public ResponseEntity<APIResponse> addApplicationReq(@PathVariable("reqID") int reqID, @RequestBody ApplicationAddReqDTO appAddDTO)
     {
         Application app = ApplicationMapper.MAPPER.applicationAddReqDTOToApplication(appAddDTO);
-        Status status   = statusRepository.findById(1);
-        app.setStatus(status);
+        app.setStatus(statusRepository.findById(1));
         applicationRepository.save(app);
         APIResponse res = new APIResponse(HttpStatus.OK, "An application has been added for candidate with ID " + app.getCandidate().getCandidateID() 
                                         + " for requisition with ID :" + app.getRequisition().getRequisitionID());
         return ResponseEntity.ok(res);
-    }*/
+    }
 
     @PostMapping("jobs/{jobID}/applications")
     public ResponseEntity<APIResponse> addApplicationJob(@PathVariable("jobID") int jobID, @RequestBody ApplicationAddJobDTO appAddJobDTO)
@@ -228,6 +235,37 @@ public class JobController
         +"Order By " + orderBy  + " " + sort;
         List<CandidateSortDTO> lstCandSortDTO = em.createNativeQuery(query, "CandidateSortDTO").getResultList();
         ResponseMult<CandidateSortDTO>  res = new ResponseMult<CandidateSortDTO>(HttpStatus.OK, "Success", lstCandSortDTO);
+        return ResponseEntity.ok(res);
+    }
+
+    
+    @PostMapping("/login")
+    public ResponseEntity<ResponseSingle<LogInResultDTO>> logIn(@RequestBody Login attempt)
+    {
+        if (attempt.getPassword() == null || attempt.getEmail() == null)
+            throw new InvalidLoginException();
+        // Check if email and password correspond to a user on database
+        Candidate cand = candidateRepository.findByEmail(attempt.getEmail());
+        LogInResultDTO user = null;
+        if ((cand != null) && (passwordEncoder.matches(attempt.getPassword(), cand.getProfile().getPassword())))
+        {
+            user = CandidateMapper.MAPPER.candidateToLogInResultDTO(cand);
+            user.setRole("Candidate");
+        }
+        else
+        {
+            Admin admin = adminRepository.findByEmail(attempt.getEmail());
+            if ((admin != null) && (passwordEncoder.matches(attempt.getPassword(), admin.getProfile().getPassword())))
+            {
+                user = AdminMapper.MAPPER.adminToLogInResultDTO(admin);
+                user.setRole("Admin");
+            }
+            else
+            {
+                throw new InvalidLoginException();
+            }
+        }
+        ResponseSingle<LogInResultDTO> res = new ResponseSingle<LogInResultDTO>(HttpStatus.OK, "Success", user);
         return ResponseEntity.ok(res);
     }
 }

@@ -7,6 +7,7 @@ import org.mapstruct.factory.Mappers;
 
 import backend.dto.CandidateDTO;
 import backend.dto.CandidateSummaryDTO;
+import backend.dto.LogInResultDTO;
 import backend.model.Candidate;
 
 @Mapper
@@ -30,4 +31,10 @@ public interface CandidateMapper {
     @Mapping(source = "profile.lastName", target = "lastName")
     @Mapping(source = "profile.phoneNum", target = "phoneNum")
     CandidateSummaryDTO candidateToCandidateSummaryDTO(Candidate cand);
+
+    @Mapping(source = "candidateID", target ="id")
+    @Mapping(source = "profile.email", target = "email")
+    @Mapping(source = "profile.firstName", target = "firstName")
+    @Mapping(source = "profile.lastName", target = "lastName")
+    LogInResultDTO candidateToLogInResultDTO(Candidate cand);
 }
