@@ -6,6 +6,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import backend.dto.AdminDTO;
+import backend.dto.LogInResultDTO;
 import backend.model.Admin;
 
 @Mapper
@@ -22,4 +23,10 @@ public interface AdminMapper {
 
     @InheritInverseConfiguration
     AdminDTO adminToAdminDTO(Admin admin);
+
+    @Mapping(source = "adminID", target = "id")
+    @Mapping(source = "profile.email", target = "email")
+    @Mapping(source = "profile.firstName", target = "firstName")
+    @Mapping(source = "profile.lastName", target = "lastName")
+    LogInResultDTO adminToLogInResultDTO(Admin admin);
 }
