@@ -42,7 +42,6 @@ public class EmailServiceService {
              .subject(subject)
              .body(text)
              .encoding("UTF-8").build();
-        System.out.println("Sending email");
         emailService.send(email);
      }
 
