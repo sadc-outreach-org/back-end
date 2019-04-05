@@ -1,5 +1,6 @@
 package backend.model;
 
+import java.time.LocalDateTime;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,6 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -42,5 +44,8 @@ public class Application
 
     @Column(name = "gitLink")
     private String gitLink;
+
+    @Column(name = "interviewTime")
+    private LocalDateTime interviewTime;
 
 }

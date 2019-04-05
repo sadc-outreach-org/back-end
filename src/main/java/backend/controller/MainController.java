@@ -1,5 +1,8 @@
 package backend.controller;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import backend.Utility.TimeUtility;
 import backend.dto.AdminDTO;
 import backend.dto.ApplicationAddJobDTO;
 import backend.dto.ApplicationAddReqDTO;
@@ -29,6 +34,7 @@ import backend.dto.RequisitionAddDTO;
 import backend.dto.RequisitionDTO;
 import backend.error.InvalidLoginException;
 import backend.error.RecordNotFoundException;
+import backend.error.UnexpectedDateTimeFormatException;
 import backend.mapper.AdminMapper;
 import backend.mapper.ApplicationMapper;
 import backend.mapper.CandidateMapper;
@@ -39,7 +45,6 @@ import backend.model.Application;
 import backend.model.Candidate;
 import backend.model.Job;
 import backend.model.Requisition;
-import backend.model.Status;
 import backend.repository.AdminRepository;
 import backend.repository.ApplicationRepository;
 import backend.repository.CandidateRepository;
@@ -48,6 +53,7 @@ import backend.repository.RequisitionRepository;
 import backend.repository.StatusRepository;
 import backend.request.Login;
 import backend.request.GitLink;
+import backend.request.InterviewTime;
 import backend.response.APIResponse;
 import backend.response.ResponseMult;
 import backend.response.ResponseSingle;
@@ -80,15 +86,6 @@ public class MainController
 
     @PersistenceContext
     private EntityManager em;
-
-    /*
-    @GetMapping("/users")
-    public ResponseEntity<ResponseMult<CandidateSummaryDTO>> getCands()
-     {
-        List<CandidateSummaryDTO> lstCandDTO = candidateRepository.findAll().stream().map(cand -> modelMapper.map(cand, CandidateSummaryDTO.class)).collect(Collectors.toList());
-        ResponseMult<CandidateSummaryDTO> res = new ResponseMult<CandidateSummaryDTO>(HttpStatus.OK, "Success", lstCandDTO);
-        return ResponseEntity.ok(res);
-     }*/
 
     // Testing, getting all admins accounts
     @GetMapping("/admins")
@@ -222,6 +219,31 @@ public class MainController
         if (app.getStatus().getStatusID() <= 1)
             app.setStatus(statusRepository.findById(2));
         app.setGitLink(gitLink.getGitLink());
+        applicationRepository.save(app);
+        ApplicationDTO appDTO               = ApplicationMapper.MAPPER.applicationToApplicationDTO(app);
+        ResponseSingle<ApplicationDTO> res  = new ResponseSingle<ApplicationDTO>(HttpStatus.OK, "Application has been updated", appDTO);
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/applications/{appID}/interviewTime")
+    public ResponseEntity<ResponseSingle<ApplicationDTO>> postInterviewTime(@PathVariable("appID") int appID, @RequestBody InterviewTime interviewTime)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(TimeUtility.simpleDateTimeFormat);
+        Application app                     = applicationRepository.findById(appID);
+        LocalDateTime localDateTime         = null;
+        // If already candidate already beyond the submit git link step, don't change the status
+        if (app.getStatus().getStatusID() <= 2)
+            app.setStatus(statusRepository.findById(3));
+
+        try 
+        {
+            localDateTime         = LocalDateTime.parse(interviewTime.getInterviewTime(), formatter);
+        }
+        catch (DateTimeParseException ex)
+        {
+            throw new UnexpectedDateTimeFormatException();
+        }
+        app.setInterviewTime(localDateTime);
         applicationRepository.save(app);
         ApplicationDTO appDTO               = ApplicationMapper.MAPPER.applicationToApplicationDTO(app);
         ResponseSingle<ApplicationDTO> res  = new ResponseSingle<ApplicationDTO>(HttpStatus.OK, "Application has been updated", appDTO);

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import backend.Utility.TimeUtility;
 import backend.error.*;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -88,6 +89,14 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
     {
         HttpStatus status = HttpStatus.FORBIDDEN;
         APIError error = new APIError(status, "This job does not exist");
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(UnexpectedDateTimeFormatException.class)
+    protected ResponseEntity<APIError> handleUnexpectedDateTimeFormat(UnexpectedDateTimeFormatException ex)
+    {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        APIError error = new APIError(status, "Unexpected date time format. Make sure interviewTime is in " + TimeUtility.simpleDateTimeFormat + " format.");
         return ResponseEntity.status(status).body(error);
     }
 }
