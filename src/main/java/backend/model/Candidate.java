@@ -22,6 +22,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
@@ -46,8 +47,7 @@ import javax.persistence.OrderBy;
 public class Candidate 
 {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name = "candidateID")
+    @Column(name = "userID")
     private int candidateID;
 
     @Column(name = "streetAddress")
@@ -69,6 +69,7 @@ public class Candidate
     @OneToOne (cascade = CascadeType.ALL, 
                 fetch = FetchType.EAGER)
     @JoinColumn(name = "userID", nullable = false)
+    @MapsId
     private Profile profile;
 
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},

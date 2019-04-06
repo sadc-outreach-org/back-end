@@ -274,7 +274,7 @@ public class MainController
 
     @GetMapping("/users")
     public ResponseEntity<ResponseMult<CandidateSortDTO>> getCandsSortQuery
-    (@RequestParam(name = "orderBy", defaultValue = "candidateID") String orderBy, @RequestParam (name = "sort", defaultValue = "ASC") String sort)
+    (@RequestParam(name = "orderBy", defaultValue = "statusID") String orderBy, @RequestParam (name = "sort", defaultValue = "ASC") String sort)
     {
         // SQL since candidate table does not hold a reference to latest status
         if (orderBy.equalsIgnoreCase("status"))
@@ -286,7 +286,7 @@ public class MainController
         +           "From `Application` "
         +           "Group By candidateID) appMax "
         +       "Right Outer Join "
-        +           "(Select c.candidateID, u.email, u.firstName, u.LastName "
+        +           "(Select c.userID as candidateID, u.email, u.firstName, u.LastName "
         +           "FROM `Candidate` c "
         +           "Inner Join " 
         +                "User u "
