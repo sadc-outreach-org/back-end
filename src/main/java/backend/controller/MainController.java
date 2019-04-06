@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -33,8 +34,11 @@ import backend.dto.LogInResultDTO;
 import backend.dto.RequisitionAddDTO;
 import backend.dto.RequisitionDTO;
 import backend.error.InvalidLoginException;
+import backend.error.JobExistsForCandidateException;
+import backend.error.JobNotFoundException;
 import backend.error.RecordNotFoundException;
 import backend.error.UnexpectedDateTimeFormatException;
+import backend.error.UserNotFoundException;
 import backend.mapper.AdminMapper;
 import backend.mapper.ApplicationMapper;
 import backend.mapper.CandidateMapper;
@@ -191,9 +195,19 @@ public class MainController
     @PostMapping("jobs/{jobID}/applications")
     public ResponseEntity<APIResponse> addApplicationJob(@PathVariable("jobID") int jobID, @RequestBody ApplicationAddJobDTO appAddJobDTO)
     {
+        
+        Candidate cand          = candidateRepository.findById(appAddJobDTO.getCandidateID());
+        if (cand == null) throw new UserNotFoundException();
+        Hibernate.initialize(cand.getJobs());
+        Set<Job> jobs = cand.getJobs();
+        Job job = jobRepository.findById(appAddJobDTO.getJobID());
+        if (job == null) throw new JobNotFoundException();
+        //if (jobs.contains(job)) throw new JobExistsForCandidateException();
+        jobs.add(job);
+        candidateRepository.save(cand);
         List<Requisition> reqs  = requisitionRepository.findOpenRequisitionByJobID(appAddJobDTO.getJobID());
         Application app         = new Application();
-        app.setCandidate(candidateRepository.findById(appAddJobDTO.getCandidateID()));
+        app.setCandidate(cand);
         app.setRequisition(reqs.get(0));
         app.setStatus(statusRepository.findById(1));
         applicationRepository.save(app);
@@ -260,7 +274,7 @@ public class MainController
 
     @GetMapping("/users")
     public ResponseEntity<ResponseMult<CandidateSortDTO>> getCandsSortQuery
-    (@RequestParam(name = "orderBy", defaultValue = "candidateID") String orderBy, @RequestParam (name = "sort", defaultValue = "ASC") String sort)
+    (@RequestParam(name = "orderBy", defaultValue = "statusID") String orderBy, @RequestParam (name = "sort", defaultValue = "ASC") String sort)
     {
         // SQL since candidate table does not hold a reference to latest status
         if (orderBy.equalsIgnoreCase("status"))
@@ -272,7 +286,7 @@ public class MainController
         +           "From `Application` "
         +           "Group By candidateID) appMax "
         +       "Right Outer Join "
-        +           "(Select c.candidateID, u.email, u.firstName, u.LastName "
+        +           "(Select c.userID as candidateID, u.email, u.firstName, u.LastName "
         +           "FROM `Candidate` c "
         +           "Inner Join " 
         +                "User u "
