@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 @Transactional
 public interface ProfileRepository extends JpaRepository<Profile, Integer>, JpaSpecificationExecutor<Profile> {
 
+    Profile findById(int id);
+
     Profile findByEmail(String email);
 
     //First match and list of matching last name

@@ -18,6 +18,10 @@ public class ApplicationDTO
     private CandidateSummaryDTO candidate;
     private AdminDTO admin;
     private String status;
+    @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
+    private LocalDateTime createdAt;
+    @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
+    private LocalDateTime updatedAt;
     private String gitLink;
     @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
     private LocalDateTime interviewTime;
