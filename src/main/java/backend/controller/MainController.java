@@ -31,6 +31,8 @@ import backend.dto.CandidateDTO;
 import backend.dto.CandidateSortDTO;
 import backend.dto.JobDTO;
 import backend.dto.LogInResultDTO;
+import backend.dto.NotificationAddDTO;
+import backend.dto.NotificationDTO;
 import backend.dto.RequisitionAddDTO;
 import backend.dto.RequisitionDTO;
 import backend.error.InvalidLoginException;
@@ -43,16 +45,21 @@ import backend.mapper.AdminMapper;
 import backend.mapper.ApplicationMapper;
 import backend.mapper.CandidateMapper;
 import backend.mapper.JobMapper;
+import backend.mapper.NotificationMapper;
 import backend.mapper.RequisitionMapper;
 import backend.model.Admin;
 import backend.model.Application;
 import backend.model.Candidate;
 import backend.model.Job;
+import backend.model.Notification;
+import backend.model.Profile;
 import backend.model.Requisition;
 import backend.repository.AdminRepository;
 import backend.repository.ApplicationRepository;
 import backend.repository.CandidateRepository;
 import backend.repository.JobRepository;
+import backend.repository.NotificationRepository;
+import backend.repository.ProfileRepository;
 import backend.repository.RequisitionRepository;
 import backend.repository.StatusRepository;
 import backend.request.Login;
@@ -84,6 +91,12 @@ public class MainController
 
     @Autowired
     private StatusRepository statusRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private ProfileRepository profileRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -330,6 +343,37 @@ public class MainController
             }
         }
         ResponseSingle<LogInResultDTO> res = new ResponseSingle<LogInResultDTO>(HttpStatus.OK, "Success", user);
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/notifications")
+    public ResponseEntity<APIResponse> addNotification(@RequestBody NotificationAddDTO notificationAddDTO)
+    {
+        Notification notification   = NotificationMapper.MAPPER.notificationAddDTOToNotification(notificationAddDTO);
+        notificationRepository.save(notification);
+        APIResponse res  = new APIResponse(HttpStatus.OK, "A notification has been added to userID : " + notificationAddDTO.getUserID());
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/notifications/{notificationID}")
+    public ResponseEntity<APIResponse> updateNotification(@PathVariable("notificationID") int notificationID)
+    {
+        Notification notification   = notificationRepository.findById(notificationID);
+        notification.setHasRead(true);
+        notificationRepository.save(notification);
+        APIResponse res  = new APIResponse(HttpStatus.OK, "Notification " + notificationID + " has been marked as read");
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/users/{userID}/notifications")
+    public ResponseEntity<ResponseMult<NotificationDTO>> getNotifications(@PathVariable("userID") int userID)
+    {
+        Profile user = profileRepository.findById(userID);
+        if (user == null)
+            throw new UserNotFoundException();
+        Hibernate.initialize(user.getNotifications());
+        List<NotificationDTO> notificationDTOs      = user.getNotifications().stream().map(notification -> NotificationMapper.MAPPER.notificationToNotificationDTO(notification)).collect(Collectors.toList());
+        ResponseMult<NotificationDTO> res            = new ResponseMult<NotificationDTO>(HttpStatus.OK, "Success", notificationDTOs);
         return ResponseEntity.ok(res);
     }
 

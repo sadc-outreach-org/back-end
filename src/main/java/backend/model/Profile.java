@@ -1,5 +1,7 @@
 package backend.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -13,6 +15,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 
 @Getter
 @Setter
@@ -44,6 +48,11 @@ public class Profile
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userTypeID")
     private UserType userType;
+
+    @OrderBy("createdAt DESC")
+    @OneToMany(fetch = FetchType.LAZY, 
+                mappedBy = "profile")
+    private List<Notification> notifications;
 
     // Check pertinent info that are not allowed to be empty
     public boolean hasAllFields()

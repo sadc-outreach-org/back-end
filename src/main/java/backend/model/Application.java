@@ -42,6 +42,12 @@ public class Application
     @JoinColumn(name = "statusID", nullable = false)
     private Status status;
 
+    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updatedAt")
+    private LocalDateTime updatedAt;
+
     @Column(name = "gitLink")
     private String gitLink;
 
