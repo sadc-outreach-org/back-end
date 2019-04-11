@@ -412,7 +412,7 @@ public class MainController
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("/codingChallenges/{ccID}")
+    @GetMapping("/codingchallenges/{ccID}")
     public ResponseEntity<ResponseSingle<CodingChallenge>> getCC(@PathVariable("ccID") int ccID)
     {
         CodingChallenge cc      = ccRepository.findById(ccID);
