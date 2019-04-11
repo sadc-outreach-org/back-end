@@ -11,20 +11,21 @@ import backend.mapper.CandidateMapper;
 import backend.mapper.JobMapper;
 import backend.model.Candidate;
 import backend.model.Job;
+import backend.model.Profile;
 import backend.model.UserType;
 import backend.response.*;
-import it.ozimov.springboot.mail.configuration.EnableEmailTools;
 import backend.request.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.mail.internet.AddressException;
+import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.apache.commons.text.RandomStringGenerator;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -32,7 +33,6 @@ import org.springframework.http.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @RestController
-@EnableEmailTools
 @RequestMapping("/users")
 public class CandidateController {
 
@@ -46,6 +46,9 @@ public class CandidateController {
     private JobRepository jobRepository;
 
     @Autowired
+    private UserTypeRepository userTypeRepository;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @PersistenceContext
@@ -53,6 +56,9 @@ public class CandidateController {
 
     @Autowired
     private EmailServiceService emailServiceService;
+
+    @Autowired
+    private RandomStringGenerator randomStringGenerator;
 
     @RequestMapping("/greeting")
     public String greeting() {
@@ -84,8 +90,7 @@ public class CandidateController {
         if (profileRepository.findByEmail(candDTO.getEmail()) != null)
             throw new EmailInUseException();
 
-        UserType candUserType = new UserType();
-        candUserType.setUserTypeID(1);
+        UserType candUserType = userTypeRepository.findById(1);
 
         Candidate cand = CandidateMapper.MAPPER.candidateDTOToCandidate(candDTO);
         cand.getProfile().setUserType(candUserType);
@@ -95,15 +100,17 @@ public class CandidateController {
             throw new MissingInfomationException();
         // Add user to the database
         else {
-            // Encode password, save to database and exit with status code 200
-            cand.getProfile().setPassword(passwordEncoder.encode(cand.getProfile().getPassword()));
+            // Set and encode temp password, save to database and exit with status code 200
+            String tempPW   = randomStringGenerator.generate(10);
+            cand.getProfile().setTempPW(passwordEncoder.encode(tempPW));
+            cand.getProfile().setIsLocked(true);
             candidateRepository.save(cand);
             candDTO.setCandidateID(cand.getCandidateID());
             ResponseSingle<CandidateDTO> res = new ResponseSingle<CandidateDTO>(HttpStatus.OK, "Signup Success",
                     candDTO);
             try {
-                emailServiceService.sendSignUpEmail(candDTO.getEmail());
-            } catch (AddressException e) {
+                emailServiceService.sendSignUpEmail(candDTO.getEmail(), candDTO.getFirstName(), tempPW);
+            } catch (MessagingException e) {
                 e.printStackTrace();
             }
             return ResponseEntity.ok(res);
@@ -128,12 +135,12 @@ public class CandidateController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<APIResponse> deleteUser(@PathVariable("id") int id) {
-        Candidate cand = candidateRepository.findById(id);
-        if (cand == null)
+        Profile profile = profileRepository.findById(id);
+        if (profile == null)
             throw new UserNotFoundException();
-        candidateRepository.delete(cand);
+        profileRepository.delete(profile);
         APIResponse res = new APIResponse(HttpStatus.OK,
-                "User with email " + cand.getProfile().getEmail() + " and id " + id + " has been deleted");
+                "User with email " + profile.getEmail() + " and id " + id + " has been deleted");
         return ResponseEntity.ok(res);
     }
 

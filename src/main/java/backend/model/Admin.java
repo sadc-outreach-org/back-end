@@ -12,9 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapsId;
@@ -27,17 +24,6 @@ import javax.persistence.OneToOne;
 @Table(name = "Admin")
 public class Admin 
 {
-    /*
-    @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name = "adminId")
-    private int adminID;
-
-    @OneToOne(cascade = CascadeType.ALL, 
-                fetch = FetchType.EAGER)
-    @JoinColumn(name = "userID", nullable = false)
-    private Profile profile;
-    */
 
     @Id
     @Column(name = "userID")

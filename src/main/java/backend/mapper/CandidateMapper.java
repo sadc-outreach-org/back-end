@@ -19,7 +19,6 @@ public interface CandidateMapper {
     @Mapping(source = "profile.firstName", target = "firstName")
     @Mapping(source = "profile.lastName", target = "lastName")
     @Mapping(source = "profile.phoneNum", target = "phoneNum")
-    @Mapping(source = "profile.password", target = "password")
     CandidateDTO candidateToCandidateDTO(Candidate candidate);
 
     @InheritInverseConfiguration
