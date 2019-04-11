@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.dto.AdminDTO;
-import backend.dto.RequisitionWithoutAdminDTO;
+import backend.dto.RequisitionDTO;
 import backend.error.EmailInUseException;
 import backend.error.InvalidLoginException;
 import backend.error.MissingInfomationException;
@@ -100,7 +100,7 @@ public class AdminController
 
 
     @GetMapping("/{id}/requisitions")
-    public ResponseEntity<ResponseMult<RequisitionWithoutAdminDTO>> getReqs(@PathVariable("id") int id)
+    public ResponseEntity<ResponseMult<RequisitionDTO>> getReqs(@PathVariable("id") int id)
     {
         Admin admin = adminRepository.findById(id);
         if (admin == null) throw new UserNotFoundException();
@@ -108,8 +108,8 @@ public class AdminController
         {
             // Force initialization
             Hibernate.initialize(admin.getRequisitions());
-            List<RequisitionWithoutAdminDTO> reqDTO = admin.getRequisitions().stream().map(req -> RequisitionMapper.MAPPER.requisitionToRequisitionWithoutAdminDTO(req)).collect(Collectors.toList());
-            ResponseMult<RequisitionWithoutAdminDTO> res = new ResponseMult<RequisitionWithoutAdminDTO>(HttpStatus.OK, "Success", reqDTO);
+            List<RequisitionDTO> reqDTO = admin.getRequisitions().stream().map(req -> RequisitionMapper.MAPPER.requisitionToRequisitionDTO(req)).collect(Collectors.toList());
+            ResponseMult<RequisitionDTO> res = new ResponseMult<RequisitionDTO>(HttpStatus.OK, "Success", reqDTO);
             return ResponseEntity.ok(res);
         }
     }

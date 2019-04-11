@@ -1,6 +1,7 @@
 package backend.model;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,6 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -43,5 +46,12 @@ public class Requisition
             cascade = CascadeType.ALL,
             orphanRemoval = true    
     )
-    private List<Application> applications;
+    private Set<Application> applications;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
+        fetch = FetchType.EAGER)
+    @JoinTable(name = "ReqToCC",
+    joinColumns         = @JoinColumn(name = "requisitionID"),
+    inverseJoinColumns  = @JoinColumn(name = "ccID"))
+    private Set<CodingChallenge> codingChallenges;
 }

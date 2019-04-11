@@ -1,5 +1,7 @@
 package backend.dto;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
@@ -18,5 +20,5 @@ public class RequisitionDTO
     @Getter(AccessLevel.NONE)
     private boolean isOpen;
     private AdminDTO admin;
-
+    private Set<CCSummaryDTO> codingChallenges;
 }
