@@ -27,7 +27,6 @@ import backend.dto.AdminDTO;
 import backend.dto.ApplicationAddJobDTO;
 import backend.dto.ApplicationAddReqDTO;
 import backend.dto.ApplicationDTO;
-import backend.dto.CandidateDTO;
 import backend.dto.CandidateSortDTO;
 import backend.dto.JobDTO;
 import backend.dto.LogInResultDTO;
@@ -36,18 +35,16 @@ import backend.dto.NotificationDTO;
 import backend.dto.RequisitionAddDTO;
 import backend.dto.RequisitionDTO;
 import backend.error.InvalidLoginException;
-import backend.error.JobExistsForCandidateException;
 import backend.error.JobNotFoundException;
 import backend.error.RecordNotFoundException;
 import backend.error.UnexpectedDateTimeFormatException;
 import backend.error.UserNotFoundException;
 import backend.mapper.AdminMapper;
 import backend.mapper.ApplicationMapper;
-import backend.mapper.CandidateMapper;
 import backend.mapper.JobMapper;
 import backend.mapper.NotificationMapper;
+import backend.mapper.ProfileMapper;
 import backend.mapper.RequisitionMapper;
-import backend.model.Admin;
 import backend.model.Application;
 import backend.model.Candidate;
 import backend.model.CodingChallenge;
@@ -67,14 +64,13 @@ import backend.repository.ProfileRepository;
 import backend.repository.RequisitionRepository;
 import backend.repository.StatusRepository;
 import backend.request.Login;
+import backend.request.PasswordReset;
 import backend.request.GitLink;
 import backend.request.InterviewTime;
 import backend.response.APIResponse;
 import backend.response.ResponseMult;
 import backend.response.ResponseSingle;
-import it.ozimov.springboot.mail.configuration.EnableEmailTools;
 
-@EnableEmailTools
 @RestController
 public class MainController
 {
@@ -332,29 +328,57 @@ public class MainController
     {
         if (attempt.getPassword() == null || attempt.getEmail() == null)
             throw new InvalidLoginException();
-        // Check if email and password correspond to a user on database
-        Candidate cand = candidateRepository.findByEmail(attempt.getEmail());
-        LogInResultDTO user = null;
-        if ((cand != null) && (passwordEncoder.matches(attempt.getPassword(), cand.getProfile().getPassword())))
+
+        // Check if this email exists
+        Profile profile     = profileRepository.findByEmail(attempt.getEmail());
+        if (profile == null)
+            throw new InvalidLoginException();
+        // Check if this account is locked and uses tempPW to reset pw
+        if (profile.getIsLocked())
         {
-            user = CandidateMapper.MAPPER.candidateToLogInResultDTO(cand);
-            user.setRole("Candidate");
+            if (!passwordEncoder.matches(attempt.getPassword(), profile.getTempPW()))
+                throw new InvalidLoginException();
         }
         else
         {
-            Admin admin = adminRepository.findByEmail(attempt.getEmail());
-            if ((admin != null) && (passwordEncoder.matches(attempt.getPassword(), admin.getProfile().getPassword())))
-            {
-                user = AdminMapper.MAPPER.adminToLogInResultDTO(admin);
-                user.setRole("Admin");
-            }
-            else
-            {
+            if (!passwordEncoder.matches(attempt.getPassword(), profile.getPassword()))
                 throw new InvalidLoginException();
-            }
         }
+        Hibernate.initialize(profile.getUserType());
+        LogInResultDTO user = ProfileMapper.MAPPER.profileToLogInResultDTO(profile);
         ResponseSingle<LogInResultDTO> res = new ResponseSingle<LogInResultDTO>(HttpStatus.OK, "Success", user);
         return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/password")
+    public ResponseEntity<APIResponse> updatePassword(@RequestBody PasswordReset reset)
+    {
+        Profile profile     = profileRepository.findByEmail(reset.getEmail());
+        if (profile == null)
+            throw new InvalidLoginException();
+        if (reset.getNewPassword() == null)
+            throw new InvalidLoginException();
+        if (profile.getIsLocked())
+        {
+            if (!passwordEncoder.matches(reset.getOldPassword(), profile.getTempPW()))
+                throw new InvalidLoginException();
+            profile.setPassword(passwordEncoder.encode(reset.getNewPassword()));
+            profile.setTempPW(null);
+            profile.setIsLocked(false);
+            profileRepository.save(profile);
+        }
+        else
+        {
+            if (!passwordEncoder.matches(reset.getOldPassword(), profile.getPassword()))
+                throw new InvalidLoginException();
+            profile.setPassword(passwordEncoder.encode(reset.getNewPassword()));
+            profile.setTempPW(null);
+            profile.setIsLocked(false);
+            profileRepository.save(profile);
+        }
+        APIResponse res  = new APIResponse(HttpStatus.OK, "Password for user with email " + reset.getEmail() + " has been reset / updated");
+        return ResponseEntity.ok(res);
+
     }
 
     @PostMapping("/notifications")

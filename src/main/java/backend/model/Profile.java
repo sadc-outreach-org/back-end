@@ -45,6 +45,13 @@ public class Profile
     @Column(name = "password")
     private String password;
 
+    @Column(name = "tempPW")
+    private String tempPW;
+
+    @Column(name = "isLocked", nullable = true, columnDefinition="TINYINT", length = 1)
+    private Boolean isLocked;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userTypeID")
     private UserType userType;
@@ -57,8 +64,7 @@ public class Profile
     // Check pertinent info that are not allowed to be empty
     public boolean hasAllFields()
     {
-        if (( password    == null || password.isEmpty()   ) 
-        || (  firstName   == null || firstName.isEmpty()  ) 
+        if ( (  firstName   == null || firstName.isEmpty()  ) 
         || (  lastName    == null || lastName.isEmpty()   ) 
         || (  email       == null || email.isEmpty()      ) 
         || (  phoneNum    == null || phoneNum.isEmpty()   )
