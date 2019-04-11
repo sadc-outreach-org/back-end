@@ -14,9 +14,8 @@ import lombok.Setter;
 public class ApplicationDTO 
 {
     private int applicationID;
-    private RequisitionWithoutAdminDTO requisition;
+    private RequisitionDTO requisition;
     private CandidateSummaryDTO candidate;
-    private AdminDTO admin;
     private String status;
     @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
     private LocalDateTime createdAt;

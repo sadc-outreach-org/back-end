@@ -50,13 +50,17 @@ import backend.mapper.RequisitionMapper;
 import backend.model.Admin;
 import backend.model.Application;
 import backend.model.Candidate;
+import backend.model.CodingChallenge;
+import backend.model.Example;
 import backend.model.Job;
 import backend.model.Notification;
 import backend.model.Profile;
 import backend.model.Requisition;
 import backend.repository.AdminRepository;
 import backend.repository.ApplicationRepository;
+import backend.repository.CCRepository;
 import backend.repository.CandidateRepository;
+import backend.repository.ExampleRepository;
 import backend.repository.JobRepository;
 import backend.repository.NotificationRepository;
 import backend.repository.ProfileRepository;
@@ -97,6 +101,12 @@ public class MainController
 
     @Autowired
     private ProfileRepository profileRepository;
+
+    @Autowired
+    private ExampleRepository exampleRepository;
+
+    @Autowired
+    private CCRepository ccRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -229,6 +239,15 @@ public class MainController
         return ResponseEntity.ok(res);
     }
 
+    @GetMapping("/applications")
+    public ResponseEntity<ResponseMult<ApplicationDTO>> getApps()
+    {
+        List<Application> apps              = applicationRepository.findAll();
+        List<ApplicationDTO> appDTOs        = apps.stream().map(app -> ApplicationMapper.MAPPER.applicationToApplicationDTO(app)).collect(Collectors.toList());
+        ResponseMult<ApplicationDTO> res  = new ResponseMult<ApplicationDTO>(HttpStatus.OK, "Success", appDTOs);
+        return ResponseEntity.ok(res);
+    }
+
     @GetMapping("/applications/{appID}")
     public ResponseEntity<ResponseSingle<ApplicationDTO>> getApp(@PathVariable("appID") int appID)
     {
@@ -275,14 +294,6 @@ public class MainController
         ApplicationDTO appDTO               = ApplicationMapper.MAPPER.applicationToApplicationDTO(app);
         ResponseSingle<ApplicationDTO> res  = new ResponseSingle<ApplicationDTO>(HttpStatus.OK, "Application has been updated", appDTO);
         return ResponseEntity.ok(res);
-    }
-
-    @GetMapping("/test")
-    public CandidateDTO getCandsSort()
-    {
-        Candidate cand = candidateRepository.findById(3);
-        CandidateDTO candDTO = CandidateMapper.MAPPER.candidateToCandidateDTO(cand);
-        return candDTO;
     }
 
     @GetMapping("/users")
@@ -377,4 +388,36 @@ public class MainController
         return ResponseEntity.ok(res);
     }
 
+    @GetMapping("/codingChallenges/{ccID}")
+    public ResponseEntity<ResponseSingle<CodingChallenge>> getCC(@PathVariable("ccID") int ccID)
+    {
+        CodingChallenge cc      = ccRepository.findById(ccID);
+        Hibernate.initialize(cc.getExamples());
+        ResponseSingle<CodingChallenge> res  = new ResponseSingle<CodingChallenge>(HttpStatus.OK, "Application has been updated", cc);
+        return ResponseEntity.ok(res);
+    }
+
+    // For testing
+    @GetMapping("/test")
+    public Set<CodingChallenge> getTest()
+    {
+        
+        Job job = jobRepository.findById(1);
+        Hibernate.initialize(job.getCodingChallenges());
+        Set<CodingChallenge> cc     = job.getCodingChallenges();
+        for (CodingChallenge c : cc)
+            Hibernate.initialize(c.getExamples());
+
+        Example ex = exampleRepository.findById(1);
+        return cc;
+    }
+
+    // For testing
+    @GetMapping("/test2")
+    public CodingChallenge getTest2()
+    {
+        CodingChallenge cc  = ccRepository.findById(1);
+        Hibernate.initialize(cc.getJobs());
+        return cc;
+    }
 }

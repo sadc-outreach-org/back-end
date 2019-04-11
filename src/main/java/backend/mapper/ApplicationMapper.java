@@ -14,7 +14,6 @@ public interface ApplicationMapper {
     ApplicationMapper MAPPER = Mappers.getMapper( ApplicationMapper.class);
 
     @Mapping(source = "status.status", target  = "status")
-    @Mapping(source = "requisition.admin", target = "admin")
     ApplicationDTO applicationToApplicationDTO(Application application);
 
     @Mapping(source = "requisitionID", target = "requisition.requisitionID")

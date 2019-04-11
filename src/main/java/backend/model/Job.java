@@ -1,6 +1,7 @@
 package backend.model;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -9,6 +10,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -63,4 +66,11 @@ public class Job
     @ManyToMany(mappedBy = "jobs",
                 fetch = FetchType.LAZY)
     List<Candidate> candidates;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
+                fetch = FetchType.LAZY)
+    @JoinTable(name = "JobToCC",
+        joinColumns         = @JoinColumn(name = "jobID"),
+        inverseJoinColumns  = @JoinColumn(name = "ccID"))
+    private Set<CodingChallenge> codingChallenges;
 }
