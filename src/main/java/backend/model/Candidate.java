@@ -36,6 +36,7 @@ import javax.persistence.OrderBy;
             @ColumnResult(name = "email"),
             @ColumnResult(name = "firstName"),
             @ColumnResult(name = "lastName"),
+            @ColumnResult(name = "applicationID"),
             @ColumnResult(name = "status")
         }
     )

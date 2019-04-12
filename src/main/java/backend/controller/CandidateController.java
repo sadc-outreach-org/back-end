@@ -83,6 +83,19 @@ public class CandidateController {
         return ResponseEntity.ok(res);
     }
 
+    @PostMapping("/{id}")
+    public ResponseEntity<ResponseSingle<CandidateDTO>> updateCandidate(@PathVariable("id") int id, @RequestBody CandidateDTO candDTO)
+    {
+        Candidate cand  = candidateRepository.findById(id);
+        if (cand == null) 
+            throw new UserNotFoundException();
+        cand            = CandidateMapper.MAPPER.updateCandidateFromCandidateDTO(candDTO, cand);
+        candidateRepository.save(cand);
+        CandidateDTO returnDTO  = CandidateMapper.MAPPER.candidateToCandidateDTO(cand);
+        ResponseSingle<CandidateDTO> res = new ResponseSingle<CandidateDTO>(HttpStatus.OK, "User with id " + id + " has been updated", returnDTO);
+        return ResponseEntity.ok(res);
+    }
+
     // Signup a user
     @PostMapping("/signup")
     public ResponseEntity<ResponseSingle<CandidateDTO>> signUp(@RequestBody CandidateDTO candDTO) {
@@ -228,13 +241,6 @@ public class CandidateController {
         }
     }
 
-    @PostMapping("")
-    public ResponseEntity<APIResponse> updateCandidate(@RequestBody Candidate cand)
-    {
-        if (cand == null) throw new UserNotFoundException();
-        candidateRepository.save(cand);
-        APIResponse res = new APIResponse(HttpStatus.OK, "User " + cand.getProfile().getEmail() + " has been updated");
-        return ResponseEntity.ok(res);
-    }
+
 
 }

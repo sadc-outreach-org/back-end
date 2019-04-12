@@ -1,5 +1,7 @@
 package backend.Utility;
 
+import java.time.LocalDateTime;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -67,6 +69,17 @@ public class EmailServiceService {
          buildSignature(strBuilder);
          return strBuilder.toString();
     }
+
+    public void sendSubmitGitLinkEmail(String to, String firstName)
+    {
+        //TODO
+    }
+
+    public void sendInterviewTimeEmail(String to, String firstName, LocalDateTime time)
+    {
+        //TODO
+    }
+
 
     private void buildSignature(StringBuilder body)
     {

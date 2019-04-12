@@ -1,6 +1,6 @@
 package backend.dto;
 
-import java.util.Set;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -20,5 +20,5 @@ public class RequisitionDTO
     @Getter(AccessLevel.NONE)
     private boolean isOpen;
     private AdminDTO admin;
-    private Set<CCSummaryDTO> codingChallenges;
+    private List<CCSummaryDTO> codingChallenges;
 }
