@@ -1,7 +1,6 @@
 package backend.model;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -72,5 +71,5 @@ public class Job
     @JoinTable(name = "JobToCC",
         joinColumns         = @JoinColumn(name = "jobID"),
         inverseJoinColumns  = @JoinColumn(name = "ccID"))
-    private Set<CodingChallenge> codingChallenges;
+    private List<CodingChallenge> codingChallenges;
 }

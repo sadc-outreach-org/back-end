@@ -27,6 +27,8 @@ import backend.dto.AdminDTO;
 import backend.dto.ApplicationAddJobDTO;
 import backend.dto.ApplicationAddReqDTO;
 import backend.dto.ApplicationDTO;
+import backend.dto.CCDTO;
+import backend.dto.CCSummaryDTO;
 import backend.dto.CandidateSortDTO;
 import backend.dto.JobDTO;
 import backend.dto.LogInResultDTO;
@@ -41,6 +43,7 @@ import backend.error.UnexpectedDateTimeFormatException;
 import backend.error.UserNotFoundException;
 import backend.mapper.AdminMapper;
 import backend.mapper.ApplicationMapper;
+import backend.mapper.CodingChallengeMapper;
 import backend.mapper.JobMapper;
 import backend.mapper.NotificationMapper;
 import backend.mapper.ProfileMapper;
@@ -301,8 +304,8 @@ public class MainController
             orderBy = "statusID";
         String query = 
         " Select c.*, s.status FROM "
-        +   "(Select cand.*, appMax.statusID FROM "
-        +       "(Select candidateID, MAX(statusID) as statusID "
+        +   "(Select cand.*, appMax.applicationID, appMax.statusID FROM "
+        +       "(Select applicationID, candidateID, MAX(statusID) as statusID "
         +           "From `Application` "
         +           "Group By candidateID) appMax "
         +       "Right Outer Join "
@@ -413,22 +416,33 @@ public class MainController
     }
 
     @GetMapping("/codingchallenges/{ccID}")
-    public ResponseEntity<ResponseSingle<CodingChallenge>> getCC(@PathVariable("ccID") int ccID)
+    public ResponseEntity<ResponseSingle<CCDTO>> getCC(@PathVariable("ccID") int ccID)
     {
         CodingChallenge cc      = ccRepository.findById(ccID);
         Hibernate.initialize(cc.getExamples());
-        ResponseSingle<CodingChallenge> res  = new ResponseSingle<CodingChallenge>(HttpStatus.OK, "Application has been updated", cc);
+        CCDTO ccDTO             = CodingChallengeMapper.MAPPER.ccToCCDTO(cc);
+        ResponseSingle<CCDTO> res  = new ResponseSingle<CCDTO>(HttpStatus.OK, "Success", ccDTO);
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/codingchallenges")
+    public ResponseEntity<ResponseMult<CCSummaryDTO>> getCCs()
+    {
+        List<CodingChallenge> ccs       = ccRepository.findAll();
+        Hibernate.initialize(ccs);
+        List<CCSummaryDTO> ccDTOs              = ccs.stream().map(cc -> CodingChallengeMapper.MAPPER.ccToCCSummaryDTO(cc)).collect(Collectors.toList());
+        ResponseMult<CCSummaryDTO> res  = new ResponseMult<CCSummaryDTO>(HttpStatus.OK, "Success", ccDTOs);
         return ResponseEntity.ok(res);
     }
 
     // For testing
     @GetMapping("/test")
-    public Set<CodingChallenge> getTest()
+    public List<CodingChallenge> getTest()
     {
         
         Job job = jobRepository.findById(1);
         Hibernate.initialize(job.getCodingChallenges());
-        Set<CodingChallenge> cc     = job.getCodingChallenges();
+        List<CodingChallenge> cc     = job.getCodingChallenges();
         for (CodingChallenge c : cc)
             Hibernate.initialize(c.getExamples());
 

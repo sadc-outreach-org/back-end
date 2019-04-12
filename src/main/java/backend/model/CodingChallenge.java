@@ -1,6 +1,6 @@
 package backend.model;
 
-import java.util.Set;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -42,15 +42,15 @@ public class CodingChallenge
     @OneToMany(mappedBy = "codingChallenge", 
                 cascade = {CascadeType.PERSIST,CascadeType.MERGE},
                 fetch = FetchType.LAZY)
-    private Set<Example> examples;
+    private List<Example> examples;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "codingChallenges",
                 fetch = FetchType.LAZY)
-    Set<Job> jobs;
+    List<Job> jobs;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "codingChallenges",
                 fetch = FetchType.LAZY)
-    Set<Requisition> requisitions;
+    List<Requisition> requisitions;
 }

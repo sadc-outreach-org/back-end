@@ -7,6 +7,7 @@ import org.mapstruct.factory.Mappers;
 
 import backend.dto.RequisitionAddDTO;
 import backend.dto.RequisitionDTO;
+import backend.dto.RequisitionFullDTO;
 import backend.model.Requisition;
 
 @Mapper (uses = {AdminMapper.class, CodingChallengeMapper.class})
@@ -21,6 +22,11 @@ public interface RequisitionMapper {
 
     @InheritInverseConfiguration
     Requisition requisitionDTOToRequisition(RequisitionDTO requisitionDTO);
+
+    @Mapping(source = "job.title", target = "title")
+    @Mapping(source = "job.description", target = "description")
+    @Mapping(source = "job.requirements", target = "requirements")
+    RequisitionFullDTO requisitionToRequisitionFullDTO(Requisition requisition);
 
     @Mapping(source = "jobID", target = "job.jobID")
     @Mapping(source = "adminID", target = "admin.adminID")

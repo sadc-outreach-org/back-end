@@ -1,5 +1,6 @@
 package backend.model;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -34,7 +35,7 @@ public class Requisition
     @JoinColumn(name = "adminID")
     private Admin admin;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "jobID")
     private Job job;
 
@@ -52,5 +53,5 @@ public class Requisition
     @JoinTable(name = "ReqToCC",
     joinColumns         = @JoinColumn(name = "requisitionID"),
     inverseJoinColumns  = @JoinColumn(name = "ccID"))
-    private Set<CodingChallenge> codingChallenges;
+    private List<CodingChallenge> codingChallenges;
 }
