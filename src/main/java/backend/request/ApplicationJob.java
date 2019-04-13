@@ -1,4 +1,4 @@
-package backend.dto;
+package backend.request;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class ApplicationAddJobDTO
+public class ApplicationJob
 {
     private int jobID;
     private int candidateID;

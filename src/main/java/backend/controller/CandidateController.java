@@ -4,6 +4,7 @@ import backend.repository.*;
 import backend.Utility.EmailServiceService;
 import backend.dto.ApplicationDTO;
 import backend.dto.CandidateDTO;
+import backend.dto.CandidateSortDTO;
 import backend.dto.JobDTO;
 import backend.error.*;
 import backend.mapper.ApplicationMapper;
@@ -60,16 +61,46 @@ public class CandidateController {
     @Autowired
     private RandomStringGenerator randomStringGenerator;
 
+    @PersistenceContext
+    private EntityManager em;
+
     @RequestMapping("/greeting")
     public String greeting() {
         return "This is HEB team greeting message";
 
     }
 
-    @GetMapping("Test")
-    public Iterable<Candidate> getAll() {
-        return candidateRepository.findAll();
+
+    @GetMapping("")
+    public ResponseEntity<ResponseMult<CandidateSortDTO>> getCandsSortQuery
+    (@RequestParam(name = "orderBy", defaultValue = "statusID") String orderBy, @RequestParam (name = "sort", defaultValue = "ASC") String sort)
+    {
+        // SQL since candidate table does not hold a reference to latest status
+        if (orderBy.equalsIgnoreCase("status"))
+            orderBy = "statusID";
+        String query = 
+        " Select c.*, s.status FROM "
+        +   "(Select cand.*, appMax.applicationID, appMax.statusID FROM "
+        +       "(Select applicationID, candidateID, MAX(statusID) as statusID "
+        +           "From `Application` "
+        +           "Group By candidateID) appMax "
+        +       "Right Outer Join "
+        +           "(Select c.userID as candidateID, u.email, u.firstName, u.LastName "
+        +           "FROM `Candidate` c "
+        +           "Inner Join " 
+        +                "User u "
+        +           "On c.userID = u.userID) cand "
+        +        "On cand.candidateID = appMax.candidateID "
+        +   ") c "
+        +"Left Outer Join "
+        +   "`Status` s "
+        +"On c.statusId = s.statusID "
+        +"Order By " + orderBy  + " " + sort;
+        List<CandidateSortDTO> lstCandSortDTO = em.createNativeQuery(query, "CandidateSortDTO").getResultList();
+        ResponseMult<CandidateSortDTO>  res = new ResponseMult<CandidateSortDTO>(HttpStatus.OK, "Success", lstCandSortDTO);
+        return ResponseEntity.ok(res);
     }
+
 
     @GetMapping(path = "/{id}")
     public ResponseEntity<ResponseSingle<CandidateDTO>> getUser(@PathVariable("id") int id) {
@@ -83,6 +114,7 @@ public class CandidateController {
         return ResponseEntity.ok(res);
     }
 
+
     @PostMapping("/{id}")
     public ResponseEntity<ResponseSingle<CandidateDTO>> updateCandidate(@PathVariable("id") int id, @RequestBody CandidateDTO candDTO)
     {
@@ -95,6 +127,7 @@ public class CandidateController {
         ResponseSingle<CandidateDTO> res = new ResponseSingle<CandidateDTO>(HttpStatus.OK, "User with id " + id + " has been updated", returnDTO);
         return ResponseEntity.ok(res);
     }
+
 
     // Signup a user
     @PostMapping("/signup")
@@ -130,21 +163,6 @@ public class CandidateController {
         }
     }
 
-    // Process a login attempt, return an exception if login with incorrect
-    // credentials
-    @PostMapping("/login")
-    public ResponseEntity<ResponseSingle<CandidateDTO>> login(@RequestBody Login attempt) {
-        if (attempt.getPassword() == null || attempt.getEmail() == null)
-            throw new InvalidLoginException();
-        // Check if email and password correspond to a user on database
-        Candidate cand = candidateRepository.findByEmail(attempt.getEmail());
-        if ((cand != null) && (passwordEncoder.matches(attempt.getPassword(), cand.getProfile().getPassword()))) {
-            CandidateDTO candDTO = CandidateMapper.MAPPER.candidateToCandidateDTO(cand);
-            ResponseSingle<CandidateDTO> res = new ResponseSingle<CandidateDTO>(HttpStatus.OK, "Success", candDTO);
-            return ResponseEntity.ok(res);
-        } else
-            throw new InvalidLoginException();
-    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<APIResponse> deleteUser(@PathVariable("id") int id) {
@@ -157,6 +175,7 @@ public class CandidateController {
         return ResponseEntity.ok(res);
     }
 
+
     @GetMapping("/{id}/applications")
     public ResponseEntity<ResponseMult<ApplicationDTO>> getApps(@PathVariable("id") int id) {
         Candidate cand = candidateRepository.findById(id);
@@ -165,12 +184,12 @@ public class CandidateController {
         else 
         {
             Hibernate.initialize(cand.getApplications());
-            //List<ApplicationNoCandidateDTO> lstApps = cand.getApplications().stream().map(app -> modelMapper.map(app, ApplicationNoCandidateDTO.class)).collect(Collectors.toList());
             List<ApplicationDTO> lstApps = cand.getApplications().stream().map(app -> ApplicationMapper.MAPPER.applicationToApplicationDTO(app)).collect(Collectors.toList());
             ResponseMult<ApplicationDTO> res = new ResponseMult<ApplicationDTO>(HttpStatus.OK, "Success", lstApps);
             return ResponseEntity.ok(res);
         }
     }
+
 
     @GetMapping("/{id}/jobs")
     public ResponseEntity<ResponseMult<JobDTO>> getJobs(@PathVariable("id") int id)
@@ -185,6 +204,7 @@ public class CandidateController {
             return ResponseEntity.ok(res);
         }
     }
+
 
     @PostMapping("/{id}/jobs")
     public ResponseEntity<APIResponse> addJobs(@RequestBody CandToJob candToJob)
@@ -207,6 +227,7 @@ public class CandidateController {
             return ResponseEntity.ok(res);
         }
     }
+
 
     @GetMapping(
         value = "/{id}/resume",

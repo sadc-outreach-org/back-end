@@ -42,7 +42,7 @@ public class Application
     @JoinColumn(name = "statusID", nullable = false)
     private Status status;
 
-    @Column(name = "createdAt")
+    @Column(name = "createdAt", insertable=false)
     private LocalDateTime createdAt;
 
     @Column(name = "updatedAt")
@@ -50,6 +50,9 @@ public class Application
 
     @Column(name = "gitLink")
     private String gitLink;
+
+    @Column(name = "submittedAt")
+    private LocalDateTime submittedAt;
 
     @Column(name = "interviewTime")
     private LocalDateTime interviewTime;

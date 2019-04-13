@@ -36,7 +36,7 @@ public class Notification
     @Column(name = "hasRead", nullable = false, columnDefinition="TINYINT")
     private boolean hasRead;
 
-    @Column(name = "createdAt")
+    @Column(name = "createdAt", insertable=false)
     private LocalDateTime createdAt;
 
 }

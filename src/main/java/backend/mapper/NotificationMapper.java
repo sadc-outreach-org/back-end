@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import backend.dto.NotificationAddDTO;
+import backend.request.NotificationAdd;
 import backend.dto.NotificationDTO;
 import backend.model.Notification;
 
@@ -22,5 +22,5 @@ public interface NotificationMapper {
     Notification notificationDTOToNotification(NotificationDTO notificationDTO);
 
     @Mapping(source = "userID", target = "profile.userID")
-    Notification notificationAddDTOToNotification(NotificationAddDTO notificationAddDTO);
+    Notification notificationAddToNotification(NotificationAdd notificationAdd);
 }

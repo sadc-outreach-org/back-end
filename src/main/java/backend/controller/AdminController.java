@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import backend.dto.AdminDTO;
 import backend.dto.RequisitionDTO;
 import backend.error.EmailInUseException;
-import backend.error.InvalidLoginException;
 import backend.error.MissingInfomationException;
 import backend.error.UserNotFoundException;
 import backend.mapper.AdminMapper;
@@ -27,7 +26,6 @@ import backend.model.Admin;
 import backend.model.UserType;
 import backend.repository.AdminRepository;
 import backend.repository.ProfileRepository;
-import backend.request.Login;
 import backend.response.ResponseMult;
 import backend.response.ResponseSingle;
 
@@ -43,6 +41,15 @@ public class AdminController
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @GetMapping("")
+    public ResponseEntity<ResponseMult<AdminDTO>> getAdmins() 
+    {
+        List<AdminDTO> lstAdminDTO = adminRepository.findAll().stream().map(ad -> AdminMapper.MAPPER.adminToAdminDTO(ad)).collect(Collectors.toList());
+        ResponseMult<AdminDTO> res = new ResponseMult<AdminDTO>(HttpStatus.OK, "Success", lstAdminDTO);
+        return ResponseEntity.ok(res);
+    }
+
 
     @PostMapping("/signup")
     public ResponseEntity<ResponseSingle<AdminDTO>> signUp(@RequestBody AdminDTO adminDTO) {
@@ -69,22 +76,6 @@ public class AdminController
                     adminDTO);
             return ResponseEntity.ok(res);
         }
-    }
-
-    // Process a login attempt, return an exception if login with incorrect credentials
-    @PostMapping("/login")
-    public ResponseEntity<ResponseSingle<AdminDTO>> login(@RequestBody Login attempt) {
-        if (attempt.getPassword() == null || attempt.getEmail() == null) throw new InvalidLoginException();
-        // Check if email and password correspond to a user on database
-        Admin admin = adminRepository.findByEmail(attempt.getEmail());
-        AdminDTO adminDTO = AdminMapper.MAPPER.adminToAdminDTO(admin);
-        if ( (admin != null) &&
-            (passwordEncoder.matches(attempt.getPassword(), admin.getProfile().getPassword())) )
-        {
-            ResponseSingle<AdminDTO> res = new ResponseSingle<AdminDTO>(HttpStatus.OK, "Success", adminDTO);
-            return ResponseEntity.ok(res);
-        }
-        else throw new InvalidLoginException();
     }
 
 
