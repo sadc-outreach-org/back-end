@@ -40,7 +40,7 @@ public class Requisition
     private Job job;
 
     @Column(name = "isOpen", nullable = false, columnDefinition="TINYINT", length = 1)
-    private boolean isOpen;
+    private Boolean isOpen;
 
     @OneToMany(mappedBy = "requisition",
             cascade = CascadeType.ALL,

@@ -1,11 +1,11 @@
-package backend.dto;
+package backend.request;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class NotificationAddDTO
+public class NotificationAdd
 {
     private int userID;
     private String message;

@@ -1,14 +1,11 @@
 package backend.dto;
 
-import java.util.List;
-
-
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @Setter
-public class RequisitionDTO
+@Getter
+public class RequisitionSummaryDTO
 {
     private int requisitionID;
     private String title;
@@ -16,5 +13,4 @@ public class RequisitionDTO
     private String requirements;
     private Boolean isOpen;
     private AdminDTO admin;
-    private List<CCDTO> codingChallenges;
 }

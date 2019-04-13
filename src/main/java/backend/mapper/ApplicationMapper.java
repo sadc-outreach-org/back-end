@@ -4,9 +4,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import backend.dto.ApplicationAddReqDTO;
 import backend.dto.ApplicationDTO;
+import backend.dto.ApplicationSummaryDTO;
 import backend.model.Application;
+import backend.request.ApplicationRequisition;
 
 @Mapper (uses = {AdminMapper.class, CandidateMapper.class, RequisitionMapper.class})
 public interface ApplicationMapper {
@@ -16,8 +17,11 @@ public interface ApplicationMapper {
     @Mapping(source = "status.status", target  = "status")
     ApplicationDTO applicationToApplicationDTO(Application application);
 
+    @Mapping(source = "status.status", target  = "status")
+    ApplicationSummaryDTO applicationToApplicationSummaryDTO(Application application);
+
     @Mapping(source = "requisitionID", target = "requisition.requisitionID")
     @Mapping(source = "candidateID", target = "candidate.candidateID")
-    Application applicationAddReqDTOToApplication(ApplicationAddReqDTO applicationAddReqDTO);
+    Application applicationRequisitionToApplication(ApplicationRequisition applicationRequisition);
 
 }
