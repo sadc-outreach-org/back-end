@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import backend.Utility.EmailService;
 import backend.dto.ApplicationSummaryDTO;
 import backend.dto.RequisitionDTO;
 import backend.dto.RequisitionSummaryDTO;
@@ -43,6 +44,9 @@ public class RequisitionController
 
     @Autowired
     ApplicationRepository applicationRepository;
+
+    @Autowired
+    private EmailService emailService;
 
 
     @GetMapping("")
@@ -92,6 +96,8 @@ public class RequisitionController
         app.setStatus(statusRepository.findById(1));
         app.setUpdatedAt(LocalDateTime.now());
         applicationRepository.save(app);
+        Hibernate.initialize(app);
+        emailService.sendApplicationEmail(app.getCandidate().getProfile().getEmail(), app.getCandidate().getProfile().getFirstName(), app);
         APIResponse res = new APIResponse(HttpStatus.OK, "An application has been added for candidate with ID " + app.getCandidate().getCandidateID() 
                                         + " for requisition with ID :" + app.getRequisition().getRequisitionID());
         return ResponseEntity.ok(res);

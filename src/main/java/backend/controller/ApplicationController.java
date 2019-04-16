@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import backend.Utility.EmailService;
 import backend.Utility.TimeUtility;
 import backend.dto.ApplicationDTO;
 import backend.dto.ApplicationSummaryDTO;
@@ -39,6 +40,8 @@ public class ApplicationController
     @Autowired
     private StatusRepository statusRepository;
 
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("")
     public ResponseEntity<ResponseMult<ApplicationSummaryDTO>> getApps()
@@ -69,6 +72,7 @@ public class ApplicationController
         app.setUpdatedAt(LocalDateTime.now());
         app.setSubmittedAt(LocalDateTime.now());
         applicationRepository.save(app);
+        emailService.sendSubmitGitLinkEmail(app.getCandidate().getProfile().getEmail(), app.getCandidate().getProfile().getFirstName(), app);
         ApplicationDTO appDTO               = ApplicationMapper.MAPPER.applicationToApplicationDTO(app);
         ResponseSingle<ApplicationDTO> res  = new ResponseSingle<ApplicationDTO>(HttpStatus.OK, "Application has been updated", appDTO);
         return ResponseEntity.ok(res);
@@ -94,6 +98,7 @@ public class ApplicationController
         }
         app.setInterviewTime(localDateTime);
         app.setUpdatedAt(LocalDateTime.now());
+        emailService.sendInterviewTimeEmail(app.getCandidate().getProfile().getEmail(), app.getCandidate().getProfile().getFirstName(), app, localDateTime);
         applicationRepository.save(app);
         ApplicationDTO appDTO               = ApplicationMapper.MAPPER.applicationToApplicationDTO(app);
         ResponseSingle<ApplicationDTO> res  = new ResponseSingle<ApplicationDTO>(HttpStatus.OK, "Application has been updated", appDTO);
