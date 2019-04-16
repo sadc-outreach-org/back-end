@@ -1,7 +1,7 @@
 package backend.controller;
 
 import backend.repository.*;
-import backend.Utility.EmailServiceService;
+import backend.Utility.EmailService;
 import backend.dto.ApplicationDTO;
 import backend.dto.CandidateDTO;
 import backend.dto.CandidateSortDTO;
@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.web.bind.annotation.*;
@@ -56,7 +54,7 @@ public class CandidateController {
     EntityManager entityManager;
 
     @Autowired
-    private EmailServiceService emailServiceService;
+    private EmailService emailService;
 
     @Autowired
     private RandomStringGenerator randomStringGenerator;
@@ -155,8 +153,8 @@ public class CandidateController {
             ResponseSingle<CandidateDTO> res = new ResponseSingle<CandidateDTO>(HttpStatus.OK, "Signup Success",
                     candDTO);
             try {
-                emailServiceService.sendSignUpEmail(candDTO.getEmail(), candDTO.getFirstName(), tempPW);
-            } catch (MessagingException e) {
+                emailService.sendSignUpEmail(candDTO.getEmail(), candDTO.getFirstName(), tempPW);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return ResponseEntity.ok(res);

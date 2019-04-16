@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import backend.Utility.EmailService;
 import backend.dto.JobDTO;
 import backend.dto.RequisitionSummaryDTO;
 import backend.error.JobNotFoundException;
@@ -62,6 +63,9 @@ public class JobController
 
     @PersistenceContext
     private EntityManager em;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("")
     public ResponseEntity<ResponseMult<JobDTO>> getJobs(@RequestParam(name = "open", defaultValue = "none") String open)
@@ -126,6 +130,7 @@ public class JobController
         app.setStatus(statusRepository.findById(1));
         app.setUpdatedAt(LocalDateTime.now());
         applicationRepository.save(app);
+        emailService.sendApplicationEmail(cand.getProfile().getEmail(), cand.getProfile().getFirstName(), app);
         APIResponse res         = new APIResponse(HttpStatus.OK, "An application has been added for candidate with ID " + app.getCandidate().getCandidateID() 
                                         + " for requisition with ID: " + app.getRequisition().getRequisitionID());
         return ResponseEntity.ok(res);
