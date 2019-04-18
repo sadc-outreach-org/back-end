@@ -20,9 +20,10 @@ import backend.model.Application;
 public class EmailService {
 
     private final String HOME               = "http://34.73.221.154:5000/";
+    private final String RESET_PASSWORD     = HOME + "signup";
 
     private final String SIGN_UP            = "Thank you for expressing interest in working at H-E-B. If this is your first time applying, please visit <a href=" 
-                                    + HOME + ">H-E-B Recruiting</a> to reset your password.";
+                                    + RESET_PASSWORD + ">H-E-B Recruiting</a> to reset your password.";
     private final String SUBMIT_GIT_LINK    = "You have submitted a link to a Git Repository. Log into  <a href=" + HOME + ">H-E-B Recruiting</a> to view."; 
     private final String CARRIAGE_RETURN    = "<br><br>";
 
