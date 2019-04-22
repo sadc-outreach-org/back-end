@@ -69,6 +69,7 @@ public class AdminController
         // Add user to the database
         else {
             // Encode password, save to database and exit with status code 200
+            admin.getProfile().setIsLocked(false);
             admin.getProfile().setPassword(passwordEncoder.encode(admin.getProfile().getPassword()));
             adminRepository.save(admin);
             adminDTO.setAdminID(admin.getAdminID());
